@@ -34,6 +34,7 @@ class GameScreen extends Screen implements InputProcessor {
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     private ArrayList<AnimatedItem> pellets = new ArrayList<AnimatedItem>();
     private Item galaxian;
+    private Item buttonLeft, buttonRight, buttonFire;
 
     private Texture[] enemyTextures = new Texture[4];
     private Texture[] fruitTextures = new Texture[3];
@@ -117,6 +118,21 @@ class GameScreen extends Screen implements InputProcessor {
         icons.add(new Item(fruitTextures[2], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15,fruitType[2]));
         icons.add(new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
                 new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15, ItemType.GALAXIAN));
+
+        buttonFire = new Item(new Texture(Gdx.files.internal("Images/fire.png")),
+                new Vector2(250 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0),
+                30,ItemType.BUTTON);
+
+        buttonLeft = new Item(new Texture(Gdx.files.internal("Images/left.png")),
+                new Vector2(200 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0),
+                30,ItemType.BUTTON);
+
+        buttonRight = new Item(new Texture(Gdx.files.internal("Images/right.png")),
+                new Vector2(300 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0),
+                30,ItemType.BUTTON);
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
 
@@ -388,6 +404,7 @@ class GameScreen extends Screen implements InputProcessor {
         if(galaxian != null){
             galaxian.render(spriteBatch);
         }
+
         spriteBatch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -407,6 +424,10 @@ class GameScreen extends Screen implements InputProcessor {
         bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+
+        buttonRight.render(spriteBatch);
+        buttonLeft.render(spriteBatch);
+        buttonFire.render(spriteBatch);
 
         spriteBatch.end();
     }
@@ -453,6 +474,10 @@ class GameScreen extends Screen implements InputProcessor {
         }
 
         if(galaxian != null) galaxian.dispose();
+
+        buttonFire.dispose();
+        buttonLeft.dispose();
+        buttonRight.dispose();
 
         bmpFont.dispose();
 

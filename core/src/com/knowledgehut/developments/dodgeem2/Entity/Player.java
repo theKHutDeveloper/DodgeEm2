@@ -2,6 +2,7 @@ package com.knowledgehut.developments.dodgeem2.Entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,7 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
 
-public class Player extends Entity {
+public class Player extends Entity implements InputProcessor{
     private int screenWidth;
     private ParticleEffect effect, sparkleEffect;
     private boolean isShieldOn;
@@ -24,6 +25,7 @@ public class Player extends Entity {
         super(texture, vector2, velocity, frames);
 
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
+        Gdx.input.setInputProcessor(this);
 
         this.screenWidth = screenWidth;
         baseFrames = frames;
@@ -97,13 +99,24 @@ public class Player extends Entity {
     }
     @Override
     public void update() {
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+  /*      if(Gdx.input.isTouched()){
+            if(Gdx.input.getX() > position.x){
+                setDirection(300, 0);
+                System.out.println("more than player x");
+            }
+            else if(Gdx.input.getX() < position.x){
+                System.out.println("less than player x");
+                setDirection(-300, 0);
+            }
+        }
+*/
+        /*if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             setDirection(-300, 0);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             setDirection(300, 0);
         } else setDirection(0,0);
-
+*/
         if(position.x > screenWidth - scaledSize){
             position.x = screenWidth - scaledSize - 2;
             circle.set(position.x + circleX, position.y + circleY, radius);
@@ -170,6 +183,63 @@ public class Player extends Entity {
 
     public boolean hasCollided(Circle thing){
         return(getCircle().overlaps(thing));
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        if(keycode == Input.Keys.LEFT) {
+            setDirection(-300, 0);
+        }
+        else if(keycode ==Input.Keys.RIGHT){
+            setDirection(300, 0);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        setDirection(0,0);
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if(screenX > position.x){
+            setDirection(300, 0);
+            System.out.println("more than player x");
+        }
+        else if(screenX < position.x){
+            System.out.println("less than player x");
+            setDirection(-300, 0);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        setDirection(0,0);
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
     }
 }
 

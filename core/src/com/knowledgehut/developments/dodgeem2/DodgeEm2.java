@@ -14,7 +14,7 @@ public class DodgeEm2 extends ApplicationAdapter {
     public static int SCORE, FRUIT_SCORE, TOP_SCORE = 0;
 
     public static int ENEMIES_KILLED = 0;
-    public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN, PELLET}
+    public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN, PELLET, BUTTON}
     public static int CHERRY_SCORE, STRAWBERRY_SCORE, ORANGE_SCORE, GALAXIAN_SCORE, PELLET_SCORE = 0;
     public static boolean GAME_MODE = true; //0 - ARCADE, 1 = LEVELS
     public static int level_number = 0;
