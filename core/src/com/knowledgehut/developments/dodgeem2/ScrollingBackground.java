@@ -5,23 +5,48 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.io.Console;
+
+import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
+
 public class ScrollingBackground {
 
-    private Texture background;
     private Sprite sprite;
     private int speed;
     private float y1, y2;
+    private float scale;
 
     public ScrollingBackground(Texture texture, int speed){
-        this.background = texture;
+
+        float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
         this.speed = speed;
+        scale = texture.getWidth() * GAME_SCALE_X;
 
-        background.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
-        sprite = new Sprite(background);
+        sprite = new Sprite(texture);
 
-        background.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
         y1 = 0;
-        y2 = sprite.getHeight() * speed;
+        y2 = sprite.getHeight()  * speed;
+    }
+
+
+    public void updateAndRender(float deltaTime, SpriteBatch spriteBatch){
+
+        //this is necessary when using Orthographic Camera
+        if(!sprite.isFlipY())sprite.flip(true,false);
+
+        y1 += speed * deltaTime;
+        y2 += speed * deltaTime;
+
+        if(y1 >= 0) y2 = y1 - sprite.getHeight();
+        if(y2 >= 0) y1 = y2 - sprite.getHeight();
+
+        spriteBatch.draw(sprite, 0, y1, scale, scale);
+        spriteBatch.draw(sprite, 0, y2, scale, scale);
+    }
+
+
+    public void dispose(){
+        sprite.getTexture().dispose();
     }
 
     @SuppressWarnings("unused")
@@ -39,27 +64,8 @@ public class ScrollingBackground {
         spriteBatch.draw(sprite,0, y2);
     }
 
-    public void updateAndRender(float deltaTime, SpriteBatch spriteBatch){
-
-        //this is necessary when using Orthographic Camera
-        if(!sprite.isFlipY())sprite.flip(true,false);
-
-        y1 += speed * deltaTime;
-        y2 += speed * deltaTime;
-
-        if(y1 >= 0) y2 = y1 - sprite.getHeight();
-        if(y2 >= 0) y1 = y2 - sprite.getHeight();
-
-        spriteBatch.draw(sprite,0, y1, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        spriteBatch.draw(sprite,0, y2, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    }
-
     @SuppressWarnings("unused")
     public void setSpeed(int newSpeed){
         this.speed = newSpeed;
-    }
-
-    public void dispose(){
-        background.dispose();
     }
 }
