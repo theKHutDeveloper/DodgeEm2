@@ -1,31 +1,22 @@
 package com.knowledgehut.developments.dodgeem2.Entity;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
-
-public class Player extends Entity implements InputProcessor{
-    private int screenWidth;
+public class Player extends Entity {
+    private float screenWidth;
     private ParticleEffect effect, sparkleEffect;
     private boolean isShieldOn;
     private boolean isSparkleSet;
     private int baseFrames;
-    private float GAME_SCALE_X;
 
-    public Player(Texture texture, Vector2 vector2, Vector2 velocity, int frames, int screenWidth) {
+    public Player(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float screenWidth) {
         super(texture, vector2, velocity, frames);
-
-        GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
-        Gdx.input.setInputProcessor(this);
 
         this.screenWidth = screenWidth;
         baseFrames = frames;
@@ -36,11 +27,6 @@ public class Player extends Entity implements InputProcessor{
 
         sparkleEffect = new ParticleEffect();
         sparkleEffect.load(Gdx.files.internal("Effects/sparkle1.p"), Gdx.files.internal("Images"));
-
-        /*circleX = MathUtils.floor((texture.getWidth()/frames)/2);
-        circleY = MathUtils.floor(texture.getHeight()/2);
-        radius = MathUtils.floor(circleY/1.5f);
-        circle = new Circle(position.x + circleX, position.y + circleY, radius); */
 
         isShieldOn = false;
         effect.setPosition(position.x + circleX, position.y + circleY);
@@ -70,61 +56,15 @@ public class Player extends Entity implements InputProcessor{
         sparkleEffect.start();
     }
 
-    @SuppressWarnings("unused")
-    public void moveLeft(){
-        setDirection(-300, 0);
-        if(position.x > (screenWidth - 10) * GAME_SCALE_X){
-            position.x = (screenWidth - 20 * GAME_SCALE_X) ;
-            circle.set(position.x + circleX, position.y + circleY, radius);
-        }
-        else {
-            position.add(velocity);
-            circle.set(position.x + circleX, position.y + circleY, radius);
-        }
-    }
 
-
-   @SuppressWarnings("unused")
-   public void moveRight(){
-        setDirection(300, 0);
-        if(position.x > screenWidth - 10){
-            position.x = screenWidth - 40;
-            circle.set(position.x + circleX, position.y + circleY, radius);
-        }
-        else {
-                position.add(velocity);
-                circle.set(position.x + circleX, position.y + circleY, radius);
-            }
-
-    }
     @Override
     public void update() {
-  /*      if(Gdx.input.isTouched()){
-            if(Gdx.input.getX() > position.x){
-                setDirection(300, 0);
-                System.out.println("more than player x");
-            }
-            else if(Gdx.input.getX() < position.x){
-                System.out.println("less than player x");
-                setDirection(-300, 0);
-            }
-        }
-*/
-        /*if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            setDirection(-300, 0);
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            setDirection(300, 0);
-        } else setDirection(0,0);
-*/
-        if(position.x > screenWidth - scaledSize){
-            position.x = screenWidth - scaledSize - 2;
+
+        if(position.x > (screenWidth - scaledSize)){
+            position.x = (screenWidth - scaledSize - 2 );
             circle.set(position.x + circleX, position.y + circleY, radius);
-        } else if(position.x < 1){
-            position.x = 2;
-            circle.set(position.x + circleX, position.y + circleY, radius);
-        } else {
-            position.add(velocity);
+        } else if(position.x < 1 ){
+            position.x = 2 ;
             circle.set(position.x + circleX, position.y + circleY, radius);
         }
 
@@ -135,11 +75,6 @@ public class Player extends Entity implements InputProcessor{
 
         sparkleEffect.update(0.2f);
         sparkleEffect.setPosition(position.x, position.y);
-    }
-
-    private void setDirection(float x, float y){
-        velocity.set(x, y);
-        velocity.scl(Gdx.graphics.getDeltaTime());
     }
 
     @Override
@@ -158,7 +93,6 @@ public class Player extends Entity implements InputProcessor{
         }
     }
 
-
     @Override
     public Vector2 getPosition() {
         return super.getPosition();
@@ -167,6 +101,10 @@ public class Player extends Entity implements InputProcessor{
     @Override
     public Circle getCircle() {
         return super.getCircle();
+    }
+
+    public float getScale(){
+        return scaledSize;
     }
 
     @Override
@@ -185,77 +123,9 @@ public class Player extends Entity implements InputProcessor{
         return(getCircle().overlaps(thing));
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        if(keycode == Input.Keys.LEFT) {
-            setDirection(-300, 0);
-        }
-        else if(keycode ==Input.Keys.RIGHT){
-            setDirection(300, 0);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        setDirection(0,0);
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(screenX > position.x){
-            setDirection(300, 0);
-            System.out.println("more than player x");
-        }
-        else if(screenX < position.x){
-            System.out.println("less than player x");
-            setDirection(-300, 0);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        setDirection(0,0);
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
+    public void movePlayer(int screenX){
+        position.x = screenX;
+        circle.set(position.x + circleX, position.y + circleY, radius);
     }
 }
 
-/*
-delta = Gdx.graphics.getDeltaTime();
-
-        if(Gdx.input.justTouched()){
-        touchPos.set(Gdx.input.getX(), Gdx.input.getY());
-        }
-
-        if(touchPos.x > position.x) position.x += moveSpeed * delta;
-        else if(touchPos.x < position.x) position.x -= moveSpeed * delta;
-        if(touchPos.y > position.y) position.y += moveSpeed * delta;
-        else if(touchPos.y < position.y) position.y -= moveSpeed * delta;
-
-        if(Math.abs(touchPos.x - position.x) < 5) position.x = touchPosition.x;
-        if(Math.abs(touchPos.y - position.y) < 5) position.y = touchPosition.y;
-
-        spriteBatch.draw(textureRegion, position.x, position.y);*/

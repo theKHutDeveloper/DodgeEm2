@@ -1,7 +1,6 @@
 package com.knowledgehut.developments.dodgeem2.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -15,7 +14,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.Entity.*;
-import com.knowledgehut.developments.dodgeem2.Level;
+//import com.knowledgehut.developments.dodgeem2.Level;
 import com.knowledgehut.developments.dodgeem2.ScrollingBackground;
 
 import java.util.ArrayList;
@@ -33,8 +32,7 @@ class GameScreen extends Screen implements InputProcessor {
     private ArrayList<Item> icons = new ArrayList<Item>();
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     private ArrayList<AnimatedItem> pellets = new ArrayList<AnimatedItem>();
-    private Item galaxian;
-    private Item buttonLeft, buttonRight, buttonFire;
+    private Item galaxian, fireButton;
 
     private Texture[] enemyTextures = new Texture[4];
     private Texture[] fruitTextures = new Texture[3];
@@ -49,14 +47,16 @@ class GameScreen extends Screen implements InputProcessor {
     private boolean playerCanFireBullets;
     private boolean bulletExists;
     private boolean playerInvincible;
-
+    private boolean playerTouched, buttonVisible;
+    private long delayTime = 1000;
+    private long screenActive;
     private long fireStartTime, invincibleStartTime;
     private long startTime, scoreTime;
     private long gameTime, galaxianTime;
+    private long FIRE_TIME_LIMIT = 10000;
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
-    private Level levelManager;
-    private static int SCREEN_HEIGHT = HEIGHT - 48;
+    ///private Level levelManager;
 
     private Music backgroundMusic;
 
@@ -66,6 +66,7 @@ class GameScreen extends Screen implements InputProcessor {
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
         camera = new OrthoCamera(WIDTH, HEIGHT);
 
+        screenActive = System.currentTimeMillis();
         Gdx.input.setInputProcessor(this);
 
         SCORE = FRUIT_SCORE = ENEMIES_KILLED =0;
@@ -91,10 +92,13 @@ class GameScreen extends Screen implements InputProcessor {
         background = new ScrollingBackground(new Texture(Gdx.files.internal("Images/Parallax100.png")), 1);
         foreground = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkTransparent.png")), 2);
 
+        playerTouched = false;
+        buttonVisible = false;
+
         int playerFrames = 2;
         player = new Player(new Texture(Gdx.files.internal("Images/pacman.png")),
                 new Vector2((DodgeEm2.WIDTH/2) * GAME_SCALE_X, (DodgeEm2.HEIGHT - 101) * GAME_SCALE_X),
-                new Vector2(0,0), playerFrames, DodgeEm2.WIDTH);
+                new Vector2(0,0), playerFrames, DodgeEm2.WIDTH * GAME_SCALE_X);
 
 
         enemyTextures[0] = new Texture(Gdx.files.internal("Images/cyborg_blink.png"));
@@ -113,32 +117,24 @@ class GameScreen extends Screen implements InputProcessor {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
 
-        icons.add(new Item(fruitTextures[0], new Vector2(10 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15,fruitType[0]));
-        icons.add(new Item(fruitTextures[1], new Vector2(60 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15,fruitType[1]));
-        icons.add(new Item(fruitTextures[2], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15,fruitType[2]));
+        icons.add(new Item(fruitTextures[0], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0), 15,fruitType[0]));
+        icons.add(new Item(fruitTextures[1], new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0), 15,fruitType[1]));
+        icons.add(new Item(fruitTextures[2], new Vector2(210 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+                new Vector2(0,0), 15,fruitType[2]));
         icons.add(new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
-                new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15, ItemType.GALAXIAN));
+                new Vector2(260 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15, ItemType.GALAXIAN));
 
-        buttonFire = new Item(new Texture(Gdx.files.internal("Images/fire.png")),
-                new Vector2(250 * GAME_SCALE_X, 460 * GAME_SCALE_X),
-                new Vector2(0,0),
-                30,ItemType.BUTTON);
-
-        buttonLeft = new Item(new Texture(Gdx.files.internal("Images/left.png")),
-                new Vector2(200 * GAME_SCALE_X, 460 * GAME_SCALE_X),
-                new Vector2(0,0),
-                30,ItemType.BUTTON);
-
-        buttonRight = new Item(new Texture(Gdx.files.internal("Images/right.png")),
-                new Vector2(300 * GAME_SCALE_X, 460 * GAME_SCALE_X),
-                new Vector2(0,0),
-                30,ItemType.BUTTON);
+        fireButton = new Item(new Texture(Gdx.files.internal("Images/fire.png")),
+                new Vector2(140 * GAME_SCALE_X, 430 * GAME_SCALE_X),
+                new Vector2(0,0), 30, ItemType.BUTTON);
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
 
-        if(GAME_MODE){
-            levelManager = new Level(DodgeEm2.level_number);
-        }
+       // if(GAME_MODE){
+            //levelManager = new Level(DodgeEm2.level_number);
+       // }
     }
 
     @Override
@@ -237,6 +233,7 @@ class GameScreen extends Screen implements InputProcessor {
             galaxianTime = TimeUtils.millis();
         }
 
+        int SCREEN_HEIGHT = HEIGHT - 48;
         if(!enemies.isEmpty()){
             for(int i = enemies.size()-1; i >=0; i--){
                 enemies.get(i).update();
@@ -349,18 +346,15 @@ class GameScreen extends Screen implements InputProcessor {
         }
 
         if(playerCanFireBullets){
-            long FIRE_TIME_LIMIT = 10000;
+
             if(TimeUtils.timeSinceMillis(fireStartTime) > FIRE_TIME_LIMIT){
                 playerCanFireBullets = false;
                 bulletExists = false;
                 player.changePlayerTexture("Images/pacman.png");
+                buttonVisible = false;
             }
-            else if(TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT && !bulletExists){
-                if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                    bulletExists = true;
-                    bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
-                            new Vector2(player.getCircle().x * GAME_SCALE_X, player.getPosition().y * GAME_SCALE_X)));
-                }
+            else {
+                buttonVisible = true;
             }
         }
 
@@ -409,29 +403,32 @@ class GameScreen extends Screen implements InputProcessor {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.RED);
+        shapeRenderer.circle(player.getCircle().x, player.getCircle().y, player.getCircle().radius);
+        for (Enemy enemy : enemies) {
+            shapeRenderer.circle(enemy.getCircle().x, enemy.getCircle().y, enemy.getCircle().radius);
+        }
         shapeRenderer.rectLine(0,(HEIGHT - 48 - 5) * GAME_SCALE_X, WIDTH * GAME_SCALE_X, (HEIGHT - 48 - 5) * GAME_SCALE_X, 5 * GAME_SCALE_X);
         shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.rectLine(0,HEIGHT * GAME_SCALE_X, WIDTH * GAME_SCALE_X, HEIGHT * GAME_SCALE_X, 102 * GAME_SCALE_X);
         shapeRenderer.end();
 
         spriteBatch.begin();
-        bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 50 * GAME_SCALE_X, 460 * GAME_SCALE_X);
 
         for (Item icon : icons) {
             icon.render(spriteBatch);
         }
-        bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 30 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 230 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 280 * GAME_SCALE_X, 460 * GAME_SCALE_X);
 
-        buttonRight.render(spriteBatch);
-        buttonLeft.render(spriteBatch);
-        buttonFire.render(spriteBatch);
+        if(buttonVisible) fireButton.render(spriteBatch);
 
         spriteBatch.end();
     }
 
+    @SuppressWarnings("unused")
     private void clearScores(){
         SCORE = FRUIT_SCORE = ENEMIES_KILLED =0;
         CHERRY_SCORE = STRAWBERRY_SCORE = ORANGE_SCORE = GALAXIAN_SCORE = 0;
@@ -475,10 +472,6 @@ class GameScreen extends Screen implements InputProcessor {
 
         if(galaxian != null) galaxian.dispose();
 
-        buttonFire.dispose();
-        buttonLeft.dispose();
-        buttonRight.dispose();
-
         bmpFont.dispose();
 
         for (Item icon : icons) {
@@ -514,16 +507,40 @@ class GameScreen extends Screen implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if(TimeUtils.timeSinceMillis(screenActive) > delayTime)
+            if(screenX >= fireButton.getPosition().x && screenX <= fireButton.getPosition().x + fireButton.getSprite().getWidth() &&
+                screenY >= fireButton.getPosition().y && screenY <= fireButton.getPosition().y + fireButton.getSprite().getHeight()){
+                if(playerCanFireBullets) {
+                    if (TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT && !bulletExists) {
+                        bulletExists = true;
+                        bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
+                            new Vector2(player.getCircle().x * GAME_SCALE_X, player.getPosition().y * GAME_SCALE_X)));
+
+                    }
+                }
+            }
+            else if(screenX >= player.getPosition().x && screenX <= player.getPosition().x + player.getScale()
+                    && screenY >= player.getPosition().y && screenY <= player.getPosition().y + player.getScale()){
+                playerTouched = true;
+            }
+
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        playerTouched = false;
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        //if(screenX >= player.getPosition().x && screenX <= player.getPosition().x + player.getScale() &&
+          //      screenY >= player.getPosition().y && screenY <= player.getPosition().y + player.getScale()){
+        //if(screenY >= player.getPosition().y && screenY <= player.getPosition().y + player.getScale())
+        if(TimeUtils.timeSinceMillis(screenActive) > delayTime)
+          if(playerTouched)  player.movePlayer(screenX);
+        //}
         return false;
     }
 
@@ -540,7 +557,7 @@ class GameScreen extends Screen implements InputProcessor {
 
 //TODO: Super Pellet required - player can eat ghosts, NOT SURE IF THIS IS A THING
 //TODO: Freeze ghosts for a limited time, this will allow player to get some extra items - maybe not sure
-
+//TODO: Lift platform only in classic mode
 
 
         /*Ghosts - What do we need

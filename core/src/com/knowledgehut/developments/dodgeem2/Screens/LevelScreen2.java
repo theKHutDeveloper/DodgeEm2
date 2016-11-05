@@ -8,11 +8,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 
 import java.util.ArrayList;
 
+import static com.badlogic.gdx.Input.Buttons.LEFT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
 
@@ -21,13 +23,23 @@ class LevelScreen2 extends Screen implements InputProcessor {
     private OrthoCamera camera;
     private ArrayList<Sprite> buttons = new ArrayList<Sprite>();
     private Sprite previous;
+    private Sprite background;
+    private long screenActive;
+    private float bkgScale;
 
     @Override
     public void create() {
 
         camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
+        screenActive = System.currentTimeMillis();
+
         float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
+
         Gdx.input.setInputProcessor(this);
+
+        Texture texture = new Texture(Gdx.files.internal("Images/title_background.png"));
+        bkgScale = texture.getWidth() * GAME_SCALE_X;
+        background = new Sprite(texture);
 
         for(int i = 31; i < 49; i++){
             buttons.add(new Sprite(new Texture(Gdx.files.internal("Images/button_normal_"+i + ".png"))));
@@ -68,6 +80,7 @@ class LevelScreen2 extends Screen implements InputProcessor {
 
             spriteBatch.begin();
 
+            spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
             for (Sprite button : buttons) {
                 button.draw(spriteBatch);
             }
@@ -83,6 +96,7 @@ class LevelScreen2 extends Screen implements InputProcessor {
 
         @Override
         public void dispose() {
+            background.getTexture().dispose();
             for (Sprite button : buttons) {
                 button.getTexture().dispose();
             }
@@ -120,6 +134,24 @@ class LevelScreen2 extends Screen implements InputProcessor {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            long delayTime = 1000;
+            if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
+                for (Sprite b : buttons) {
+                    if (button == LEFT && screenX >= b.getX() && screenX <= b.getX() + b.getWidth()
+                            && screenY >= b.getY() && screenY <= b.getY() + b.getHeight()) {
+                        System.out.println("A button has been pressed");
+                        break;
+                    }
+                }
+
+                if (button == LEFT && screenX >= previous.getX() && screenX <= previous.getX() + previous.getWidth()
+                        && screenY >= previous.getY() && screenY <= previous.getY() + previous.getHeight()) {
+                    System.out.println("A button has been pressed");
+                    ScreenManager.setScreen(new LevelScreen2());
+
+                }
+            }
+
             return false;
         }
 

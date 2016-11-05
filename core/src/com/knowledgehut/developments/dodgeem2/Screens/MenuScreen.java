@@ -2,7 +2,6 @@ package com.knowledgehut.developments.dodgeem2.Screens;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,8 +9,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
-import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.HEIGHT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
@@ -23,7 +22,11 @@ class MenuScreen extends Screen implements InputProcessor{
     private Sprite classic;
     private String message;
     private BitmapFont bmpFont;
+    private Sprite background;
     private float GAME_SCALE_X;
+    private long delayTime = 1000;
+    private long screenActive;
+    private float bkgScale;
 
     @Override
     public void create() {
@@ -31,18 +34,24 @@ class MenuScreen extends Screen implements InputProcessor{
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
         Gdx.input.setInputProcessor(this);
 
-        arcade = new Sprite(new Texture(Gdx.files.internal("Images/arcade_button.png")));
-        classic = new Sprite(new Texture(Gdx.files.internal("Images/classic_button.png")));
+        Texture texture = new Texture(Gdx.files.internal("Images/title_background.png"));
+        bkgScale = texture.getWidth() * GAME_SCALE_X;
+        background = new Sprite(texture);
+
+        arcade = new Sprite(new Texture(Gdx.files.internal("Images/arcade_off.png")));
+        classic = new Sprite(new Texture(Gdx.files.internal("Images/classic_off.png")));
         arcade.setSize(arcade.getWidth() * GAME_SCALE_X, arcade.getHeight() * GAME_SCALE_X);
         classic.setSize(classic.getWidth() * GAME_SCALE_X, classic.getHeight() * GAME_SCALE_X);
         arcade.flip(false, true);
-        arcade.setPosition(40 * GAME_SCALE_X, 230* GAME_SCALE_X);
+        arcade.setPosition(60 * GAME_SCALE_X, 210* GAME_SCALE_X);
         classic.flip(false,true);
-        classic.setPosition(190* GAME_SCALE_X, 230* GAME_SCALE_X);
+        classic.setPosition(60* GAME_SCALE_X, 260* GAME_SCALE_X);
 
-        message = "Choose GAME MODE to play";
+        message = "Choose GAME MODE";
         bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), true);
         bmpFont.getData().setScale(GAME_SCALE_X);
+
+        screenActive = System.currentTimeMillis();
     }
 
     @Override
@@ -55,7 +64,8 @@ class MenuScreen extends Screen implements InputProcessor{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         spriteBatch.begin();
-        bmpFont.draw(spriteBatch, message, 20 * GAME_SCALE_X, 180 * GAME_SCALE_X);
+        spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
+        bmpFont.draw(spriteBatch, message, 55 * GAME_SCALE_X, 150 * GAME_SCALE_X);
         arcade.draw(spriteBatch);
         classic.draw(spriteBatch);
         spriteBatch.end();
@@ -70,6 +80,7 @@ class MenuScreen extends Screen implements InputProcessor{
     public void dispose() {
         arcade.getTexture().dispose();
         classic.getTexture().dispose();
+        background.getTexture().dispose();
     }
 
     @Override
@@ -84,12 +95,7 @@ class MenuScreen extends Screen implements InputProcessor{
 
     @Override
     public boolean keyDown(int keycode) {
-        /*if(keycode == Input.Keys.A) {
-            ScreenManager.setScreen(new LevelScreen());
-        }
-        if(keycode == Input.Keys.C) {
-            ScreenManager.setScreen(new GameScreen());
-        }*/
+
         return false;
     }
 
@@ -105,21 +111,31 @@ class MenuScreen extends Screen implements InputProcessor{
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (screenX >= arcade.getX() && screenX <= arcade.getX() + arcade.getWidth()
-                && screenY >= arcade.getY() && screenY <= arcade.getY() + arcade.getHeight()) {
-            ScreenManager.setScreen(new LevelScreen());
+        if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
+            if (screenX >= arcade.getX() && screenX <= arcade.getX() + arcade.getWidth()
+                    && screenY >= arcade.getY() && screenY <= arcade.getY() + arcade.getHeight()) {
+                arcade.setTexture(new Texture(Gdx.files.internal("Images/arcade_on.png")));
+            } else if (screenX >= classic.getX() && screenX <= classic.getX() + classic.getWidth()
+                    && screenY >= classic.getY() && screenY <= classic.getY() + classic.getHeight()) {
+                classic.setTexture(new Texture(Gdx.files.internal("Images/classic_on.png")));
+            }
         }
-
-        if (screenX >= classic.getX() && screenX <= classic.getX() + classic.getWidth()
-                && screenY >= classic.getY() && screenY <= classic.getY() + classic.getHeight()) {
-            ScreenManager.setScreen(new GameScreen());
-        }
-
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
+            if (screenX >= arcade.getX() && screenX <= arcade.getX() + arcade.getWidth()
+                    && screenY >= arcade.getY() && screenY <= arcade.getY() + arcade.getHeight()) {
+                ScreenManager.setScreen(new LevelScreen());
+            }
+
+            if (screenX >= classic.getX() && screenX <= classic.getX() + classic.getWidth()
+                    && screenY >= classic.getY() && screenY <= classic.getY() + classic.getHeight()) {
+                ScreenManager.setScreen(new GameScreen());
+            }
+        }
         return false;
     }
 
