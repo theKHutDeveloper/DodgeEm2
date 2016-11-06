@@ -27,7 +27,7 @@ public class Item{
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
         this.texture = texture;
         this.position = vector2;
-        this.velocity = velocity;
+        this.velocity = velocity.scl(GAME_SCALE_X);
         this.scaledSize = scaledSize * GAME_SCALE_X;
         this.itemType = itemType;
 
@@ -54,6 +54,8 @@ public class Item{
         spriteBatch.draw(sprite, position.x, position.y, scaledSize, scaledSize);
     }
 
+
+    public float getScaledSize(){ return scaledSize;}
 
     public Vector2 getPosition() {
         return position;

@@ -36,8 +36,9 @@ public class TitleScreen extends Screen implements InputProcessor {
         background = new Sprite(texture1);
 
         Texture texture = new Texture(Gdx.files.internal("Images/title.png"));
-        title = new Sprite(texture, (int)(texture.getWidth()* GAME_SCALE_X), (int)(texture.getHeight() * GAME_SCALE_X));
+        title = new Sprite(texture);
         title.flip(false, true);
+
         bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), true);
         bmpFont.getData().setScale(GAME_SCALE_X);
 
@@ -55,7 +56,8 @@ public class TitleScreen extends Screen implements InputProcessor {
 
         spriteBatch.begin();
         spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
-        spriteBatch.draw(title, 40 * GAME_SCALE_X, 160 * GAME_SCALE_X);
+        //spriteBatch.draw(title, position.x, position.y, scaledSize, scaledSize);
+        spriteBatch.draw(title, 40 * GAME_SCALE_X, 160 * GAME_SCALE_X, title.getWidth() * GAME_SCALE_X, title.getHeight()* GAME_SCALE_X);
         bmpFont.draw(spriteBatch, message, 50 * GAME_SCALE_X, 260 * GAME_SCALE_X);
         spriteBatch.end();
     }

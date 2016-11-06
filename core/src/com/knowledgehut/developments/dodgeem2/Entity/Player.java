@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 
 
+
 public class Player extends Entity {
     private float screenWidth;
     private ParticleEffect effect, sparkleEffect;
@@ -15,12 +16,14 @@ public class Player extends Entity {
     private boolean isSparkleSet;
     private int baseFrames;
 
+
     public Player(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float screenWidth) {
         super(texture, vector2, velocity, frames);
 
         this.screenWidth = screenWidth;
         baseFrames = frames;
         convertToAnimation(texture, baseFrames);
+
 
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("Effects/shield3.p"), Gdx.files.internal("Images"));
@@ -32,6 +35,7 @@ public class Player extends Entity {
         effect.setPosition(position.x + circleX, position.y + circleY);
         effect.start();
         effect.setFlip(false, true);
+        effect.scaleEffect(GAME_SCALE_X);
 
         isSparkleSet = false;
         sparkleEffect.setFlip(false, true);
@@ -44,6 +48,7 @@ public class Player extends Entity {
     }
 
     public void showShield(){
+        effect.setPosition(position.x + circleX, position.y + circleY);
         isShieldOn = true;
     }
 
@@ -69,6 +74,7 @@ public class Player extends Entity {
         }
 
         if(isShieldOn){
+
             effect.setPosition(position.x + circleX, position.y + circleY);
             effect.update(0.2f);
         }
@@ -80,6 +86,7 @@ public class Player extends Entity {
     @Override
     public void render(SpriteBatch spriteBatch) {
         super.render(spriteBatch);
+
         if(isShieldOn){
             effect.draw(spriteBatch);
             effect.update(0.2f);
@@ -103,15 +110,16 @@ public class Player extends Entity {
         return super.getCircle();
     }
 
-    public float getScale(){
+    /*public float getScale(){
         return scaledSize;
-    }
+    }*/
 
     @Override
     public void dispose() {
         super.dispose();
         effect.dispose();
         sparkleEffect.dispose();
+        circle.setPosition(-10,-10);
     }
 
     @Override

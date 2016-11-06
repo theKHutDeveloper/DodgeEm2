@@ -1,23 +1,36 @@
 package com.knowledgehut.developments.dodgeem2.Entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
+import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
+
 public class Bullet {
     private Texture texture;
     private Vector2 position;
+    private Vector2 velocity;
     private boolean finished;
-    private static final int SPEED = 20;
+    private Sprite sprite;
     private Circle circle;
     private boolean collided;
     private float circleX, circleY, radius;
+    private float scaledSize = 12;
 
-    public Bullet(Texture texture, Vector2 position){
+    public Bullet(Texture texture, Vector2 position, Vector2 velocity){
+        float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
         this.texture = texture;
         this.position = position;
+        this.velocity = velocity.scl(GAME_SCALE_X);
+
+        sprite = new Sprite(this.texture);
+        //sprite.flip(false, true);
+        this.scaledSize = scaledSize * GAME_SCALE_X;
+
         finished = false;
         collided = false;
         circleX = MathUtils.floor((texture.getWidth())/2);
@@ -30,17 +43,23 @@ public class Bullet {
         return finished;
     }
 
-    public void update(float deltaTime){
-        position.y -= SPEED * deltaTime;
+    public void update(){//(float deltaTime){
+        //position.y -= (SPEED );// * deltaTime;
+        position.add(velocity);
         circle.set(position.x + circleX, position.y + circleY, radius);
 
         if(position.y < 0 || collided){
             finished = true;
         }
+        /*Gdx.app.debug("Bullet", "y = "+position.y + " x = "+position.x);
+        System.out.println("Bullet y = "+position.y + " x = "+position.x);*/
     }
 
     public void render(SpriteBatch spriteBatch){
-        spriteBatch.draw(texture, position.x, position.y);
+
+        if(!sprite.isFlipY())sprite.flip(false,true);
+
+        spriteBatch.draw(sprite, position.x, position.y, scaledSize, scaledSize);
     }
 
     public Circle getCircle(){

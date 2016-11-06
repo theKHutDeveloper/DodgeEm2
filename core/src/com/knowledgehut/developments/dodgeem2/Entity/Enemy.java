@@ -12,16 +12,12 @@ public class Enemy extends Entity{
     private ParticleEffect effect;
     private boolean isDying;
     private boolean killMode;
+    private boolean destroy;
 
     public Enemy(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float scaledSize) {
         super(texture, vector2, velocity, frames, scaledSize);
         convertToAnimation(texture, frames);
 
-        /*circleX = MathUtils.floor((texture.getWidth()/frames)/2);
-        circleY = MathUtils.floor(texture.getHeight()/2);
-        radius = MathUtils.floor(circleY/1.5f);
-        circle = new Circle(position.x + circleX, position.y + circleY, radius);
-*/
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("Effects/fireBlast.p"), Gdx.files.internal("Images"));
 
@@ -30,6 +26,7 @@ public class Enemy extends Entity{
 
         isDying = false;
         killMode = true;
+        destroy = false;
     }
 
     public void setEffect(){
@@ -47,6 +44,10 @@ public class Enemy extends Entity{
         if(isDying){
             effect.setPosition(position.x + circleX, position.y + circleY);
             effect.update(0.2f);
+            if(effect.isComplete()){
+                position.y = -490f;
+                destroy = true;
+            }
         }
     }
 
@@ -57,9 +58,7 @@ public class Enemy extends Entity{
         if(isDying){
             effect.draw(spriteBatch);
             effect.update(0.1f);
-            if(effect.isComplete()){
-                position.y = 490f;
-            }
+
         }
         else {
             super.render(spriteBatch);
@@ -69,6 +68,8 @@ public class Enemy extends Entity{
     public boolean getKillMode(){
         return killMode;
     }
+
+    public boolean isDestroy() {return destroy;}
 
     @Override
     public Vector2 getPosition() {

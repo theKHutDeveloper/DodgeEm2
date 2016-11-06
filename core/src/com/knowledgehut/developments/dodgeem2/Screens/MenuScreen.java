@@ -120,7 +120,7 @@ class MenuScreen extends Screen implements InputProcessor{
                 classic.setTexture(new Texture(Gdx.files.internal("Images/classic_on.png")));
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -136,7 +136,7 @@ class MenuScreen extends Screen implements InputProcessor{
                 ScreenManager.setScreen(new GameScreen());
             }
         }
-        return false;
+        return true;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.knowledgehut.developments.dodgeem2.Screens;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,11 +17,10 @@ import static com.knowledgehut.developments.dodgeem2.DodgeEm2.*;
 
 
 class FinScreen extends Screen implements InputProcessor{
-
+    private OrthoCamera camera;
     private BitmapFont bmpFont, bmpFont2;
     private String message, scoreText1, scoreText2, scoreText3, scoreText4, message2;
     private float GAME_SCALE_X;
-    private OrthoCamera camera;
     private Sprite background;
     private long screenActive;
     private float bkgScale;
@@ -30,15 +28,12 @@ class FinScreen extends Screen implements InputProcessor{
     @Override
     public void create() {
         camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
-        screenActive = System.currentTimeMillis();
-
+        GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
         Gdx.input.setInputProcessor(this);
 
         Texture texture = new Texture(Gdx.files.internal("Images/title_background.png"));
         bkgScale = texture.getWidth() * GAME_SCALE_X;
         background = new Sprite(texture);
-
-        GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
 
         bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), true);
         bmpFont2 = new BitmapFont(Gdx.files.internal("Fonts/mediumFont.fnt"), true);
@@ -59,15 +54,12 @@ class FinScreen extends Screen implements InputProcessor{
         }
 
         scoreText3 = "Top Score: "+TOP_SCORE;
+        screenActive = System.currentTimeMillis();
     }
 
     @Override
     public void update() {
         camera.update();
-
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            ScreenManager.setScreen(new GameScreen());
-        }
     }
 
     @Override
@@ -129,7 +121,7 @@ class FinScreen extends Screen implements InputProcessor{
             ScreenManager.setScreen(new GameScreen());
         }
 
-        return false;
+        return true;
     }
 
     @Override

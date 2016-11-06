@@ -25,7 +25,7 @@ abstract class Entity {
     private Texture texture;
     private float elapsedTime;
     protected float scaledSize;
-    private float GAME_SCALE_X;
+    protected float GAME_SCALE_X;
 
 
     Entity(Texture texture, Vector2 vector2, Vector2 velocity, int frames){
@@ -47,7 +47,7 @@ abstract class Entity {
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
         this.texture = texture;
         this.position = vector2;
-        this.velocity = velocity;
+        this.velocity = velocity.scl(GAME_SCALE_X);
         this.frames = frames;
         this.scaledSize = scaledSize * GAME_SCALE_X;
 
