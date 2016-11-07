@@ -33,6 +33,7 @@ class GameScreen extends Screen implements InputProcessor {
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     private ArrayList<AnimatedItem> pellets = new ArrayList<AnimatedItem>();
     private Item galaxian;
+    private Platform platform;
     private Paddle paddle;
 
     private Texture[] enemyTextures = new Texture[4];
@@ -46,7 +47,6 @@ class GameScreen extends Screen implements InputProcessor {
     private BitmapFont bmpFont;
 
     private boolean playerCanFireBullets;
-    private boolean bulletExists;
     private boolean playerInvincible;
     private boolean playerTouched;
 
@@ -81,7 +81,6 @@ class GameScreen extends Screen implements InputProcessor {
 
         playerCanFireBullets = false;
         playerInvincible = true;
-        bulletExists = false;
         scoreText = "Score: ";
         fruitText = "Fruits: ";
         enemiesText = "Enemies: ";
@@ -97,6 +96,7 @@ class GameScreen extends Screen implements InputProcessor {
         foreground = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkTransparent.png")), 2);
 
         playerTouched = false;
+        playerPointer = -1;
 
         int playerFrames = 2;
         player = new Player(new Texture(Gdx.files.internal("Images/pacman.png")),
@@ -131,7 +131,10 @@ class GameScreen extends Screen implements InputProcessor {
 
 
         paddle = new Paddle(new Texture(Gdx.files.internal("Images/paddle.png")),
-                new Vector2(player.getPosition().x, player.getPosition().y));
+                new Vector2(player.getPosition().x, 422 * GAME_SCALE_X));
+
+        platform = new Platform(new Texture(Gdx.files.internal("Images/metal_platform.png")),
+                new Vector2(0, 422 * GAME_SCALE_X), new Vector2(0,0));
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
 
@@ -253,16 +256,16 @@ class GameScreen extends Screen implements InputProcessor {
                 if(enemies.get(i).isDestroy()){
                     enemies.remove(i);
                 }
-                else if(bulletExists){
-                    if(enemies.get(i).bulletHitCollision(bullets.get(0).getCircle())){
-                        enemies.get(i).setEffect();
-                        ENEMIES_KILLED += 1;
-                        SCORE += 2000;
-                        bullets.remove(0);
-                        bulletExists = false;
+                else {
+                    for(int b = bullets.size()-1; b >= 0; b--) {
+                        if (enemies.get(i).bulletHitCollision(bullets.get(b).getCircle())) {
+                            enemies.get(i).setEffect();
+                            ENEMIES_KILLED += 1;
+                            SCORE += 2000;
+                            bullets.remove(b);
+                        }
                     }
                 }
-
             }
         }
 
@@ -316,7 +319,6 @@ class GameScreen extends Screen implements InputProcessor {
             for (int i = bullets.size()-1; i >=0 ; i--) {
                 if(bullets.get(i).isFinished()){
                     bullets.remove(i);
-                    bulletExists = false;
                 }
             }
         }
@@ -346,14 +348,12 @@ class GameScreen extends Screen implements InputProcessor {
                 player.showShield();
 
             }
-
         }
 
         if(playerCanFireBullets){
 
             if(TimeUtils.timeSinceMillis(fireStartTime) > FIRE_TIME_LIMIT){
                 playerCanFireBullets = false;
-                bulletExists = false;
                 player.changePlayerTexture("Images/pacman.png");
             }
         }
@@ -362,6 +362,7 @@ class GameScreen extends Screen implements InputProcessor {
             bullet.update();
         }
 
+        platform.update();
         camera.update();
     }
 
@@ -378,7 +379,6 @@ class GameScreen extends Screen implements InputProcessor {
         bmpFont.draw(spriteBatch, timeText, 100 * GAME_SCALE_X, 10 * GAME_SCALE_X);
 
         player.render(spriteBatch);
-
 
         for (Enemy enemy : enemies) {
             enemy.render(spriteBatch);
@@ -403,12 +403,11 @@ class GameScreen extends Screen implements InputProcessor {
         spriteBatch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.RED);
+        //shapeRenderer.setColor(Color.RED);
         /*shapeRenderer.circle(player.getCircle().x, player.getCircle().y, player.getCircle().radius);
         for (Enemy enemy : enemies) {
             shapeRenderer.circle(enemy.getCircle().x, enemy.getCircle().y, enemy.getCircle().radius);
         }*/
-        shapeRenderer.rectLine(0,(HEIGHT - 48 - 5) * GAME_SCALE_X, WIDTH * GAME_SCALE_X, (HEIGHT - 48 - 5) * GAME_SCALE_X, 5 * GAME_SCALE_X);
         shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.rectLine(0,HEIGHT * GAME_SCALE_X, WIDTH * GAME_SCALE_X, HEIGHT * GAME_SCALE_X, 102 * GAME_SCALE_X);
         shapeRenderer.end();
@@ -424,6 +423,7 @@ class GameScreen extends Screen implements InputProcessor {
         bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_X);
 
+        platform.render(spriteBatch);
         paddle.render(spriteBatch);
         spriteBatch.end();
     }
@@ -438,7 +438,6 @@ class GameScreen extends Screen implements InputProcessor {
 
         playerCanFireBullets = false;
         playerInvincible = true;
-        bulletExists = false;
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
     }
@@ -508,38 +507,37 @@ class GameScreen extends Screen implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(pointer < 5) {
-            if (TimeUtils.timeSinceMillis(screenActive) > delayTime)
-                if (playerCanFireBullets) {
-                        if (TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT && !bulletExists) {
-                            bulletExists = true;
-                            bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
-                                    new Vector2(player.getCircle().x, player.getPosition().y), new Vector2(0f, -3f)));
-                        }
-                    }
-
-            if (screenX >= paddle.getPosition().x && screenX <= paddle.getPosition().x + paddle.getScale()
-                    && screenY >= paddle.getPosition().y && screenY <= paddle.getPosition().y + paddle.getScale()) {
-                playerTouched = true;
-                playerPointer = pointer;
+        if (TimeUtils.timeSinceMillis(screenActive) > delayTime)
+            if (playerCanFireBullets) {
+                if (TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT) {
+                    bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
+                            new Vector2(player.getCircle().x, player.getPosition().y), new Vector2(0f, -3f)));
+                }
             }
 
-        }
+            if(playerPointer == -1){
+                if (screenX >= paddle.getPosition().x && screenX <= paddle.getPosition().x + paddle.getScale()
+                    && screenY >= paddle.getPosition().y && screenY <= paddle.getPosition().y + paddle.getScale()) {
+                    playerTouched = true;
+                    playerPointer = pointer;
+                }
+            }
         return true;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-
-        if(pointer == playerPointer) playerTouched = false;
+        if(pointer == playerPointer){
+            playerTouched = false;
+            playerPointer = -1;
+        }
         return true;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-
         if(TimeUtils.timeSinceMillis(screenActive) > delayTime)
-          if(playerTouched)  player.movePlayer(screenX);
+          if(playerTouched && playerPointer == pointer)  player.movePlayer(screenX);
         return false;
     }
 
@@ -554,9 +552,9 @@ class GameScreen extends Screen implements InputProcessor {
     }
 }
 
-//TODO: Super Pellet required - player can eat ghosts, NOT SURE IF THIS IS A THING
-//TODO: Freeze ghosts for a limited time, this will allow player to get some extra items - maybe not sure
 //TODO: Lift platform only in classic mode
+//TODO: When pressing paddle it should not move until slide
+//TODO: Countdown for shield and bullets at 5 seconds to go. Different text for both
 
 
-       
+
