@@ -44,7 +44,8 @@ class GameScreen extends Screen implements InputProcessor {
     private int counterToAddNewEnemy, counterToNewFruit, counterToNewPellet;
     private String scoreText, fruitText, enemiesText, timeText;
     private String cherryText, berryText, orangeText, galaxianText;
-    private BitmapFont bmpFont;
+    private String bulletText, shieldText;
+    private BitmapFont bmpFont, impactRed, impactSilver;
 
     private boolean playerCanFireBullets;
     private boolean playerInvincible;
@@ -55,6 +56,7 @@ class GameScreen extends Screen implements InputProcessor {
     private long fireStartTime, invincibleStartTime;
     private long startTime, scoreTime;
     private long gameTime, galaxianTime;
+    private float bulletTimer, shieldTimer;
     private long FIRE_TIME_LIMIT = 10000;
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
@@ -89,9 +91,16 @@ class GameScreen extends Screen implements InputProcessor {
         berryText = ":";
         orangeText = ":";
         galaxianText = ":";
+        bulletText = "";
+        shieldText = "";
 
         bmpFont = new BitmapFont(Gdx.files.internal("Fonts/mediumFont.fnt"), true);
         bmpFont.getData().setScale(GAME_SCALE_X);
+        impactRed = new BitmapFont(Gdx.files.internal("Fonts/impact_red_large.fnt"), true);
+        impactRed.getData().setScale(GAME_SCALE_X);
+        impactSilver = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_large.fnt"), true);
+        impactSilver.getData().setScale(GAME_SCALE_X);
+
         background = new ScrollingBackground(new Texture(Gdx.files.internal("Images/Parallax100.png")), 1);
         foreground = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkTransparent.png")), 2);
 
@@ -339,9 +348,17 @@ class GameScreen extends Screen implements InputProcessor {
 
         if(playerInvincible){
             long INVINCIBILITY_TIME = 20000;
+            float shieldTest = INVINCIBILITY_TIME - TimeUtils.timeSinceMillis(invincibleStartTime);
+
+            if(shieldTest < 3000){
+                shieldTimer = shieldTest + Gdx.graphics.getDeltaTime();
+                int shieldSeconds = (int)(shieldTimer / 1000) % 60;
+                shieldText = Integer.toString(shieldSeconds + 1);
+            }
             if(TimeUtils.timeSinceMillis(invincibleStartTime) > INVINCIBILITY_TIME){
                 playerInvincible = false;
                 player.hideShield();
+                shieldText = "";
             }
             else if(TimeUtils.timeSinceMillis(invincibleStartTime) < INVINCIBILITY_TIME){
                 //player is invincible
@@ -351,10 +368,16 @@ class GameScreen extends Screen implements InputProcessor {
         }
 
         if(playerCanFireBullets){
-
+            float timerTest = FIRE_TIME_LIMIT - TimeUtils.timeSinceMillis(fireStartTime);
+            if( timerTest < 3000)  {
+                bulletTimer = timerTest + Gdx.graphics.getDeltaTime();
+                int bulletSeconds = (int)(bulletTimer / 1000)% 60;
+                bulletText = Integer.toString(bulletSeconds + 1);
+            }
             if(TimeUtils.timeSinceMillis(fireStartTime) > FIRE_TIME_LIMIT){
                 playerCanFireBullets = false;
                 player.changePlayerTexture("Images/pacman.png");
+                bulletText = "";
             }
         }
 
@@ -413,6 +436,8 @@ class GameScreen extends Screen implements InputProcessor {
         shapeRenderer.end();
 
         spriteBatch.begin();
+        impactRed.draw(spriteBatch, bulletText, 160 * GAME_SCALE_X, 250 * GAME_SCALE_X);
+        impactSilver.draw(spriteBatch, shieldText, 160 * GAME_SCALE_X, 200 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_X);
 
         for (Item icon : icons) {
@@ -554,7 +579,7 @@ class GameScreen extends Screen implements InputProcessor {
 
 //TODO: Lift platform only in classic mode
 //TODO: When pressing paddle it should not move until slide
-//TODO: Countdown for shield and bullets at 5 seconds to go. Different text for both
+//TODO: Enemy and fruits should not be stuck together
 
 
 
