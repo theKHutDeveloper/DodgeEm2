@@ -56,7 +56,6 @@ class GameScreen extends Screen implements InputProcessor {
     private long fireStartTime, invincibleStartTime;
     private long startTime, scoreTime;
     private long gameTime, galaxianTime;
-    private float bulletTimer, shieldTimer;
     private long FIRE_TIME_LIMIT = 10000;
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
@@ -225,6 +224,18 @@ class GameScreen extends Screen implements InputProcessor {
             int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
             int no = random.nextInt(fruitTextures.length);
             float randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
+            for(Enemy enemy : enemies){
+                if(randomX >= enemy.getPosition().x && randomX <= enemy.getPosition().x + enemy.getScaledSize()
+                && randomSpeed == enemy.getVelocityY()){
+                    //change randomSpeed
+                    do {
+                        randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
+                    }
+                    while (randomSpeed != enemy.getVelocityY());
+
+                    break; //exit now that you found an enemy that is coupled
+                }
+            }
             fruits.add(new Item(fruitTextures[no],
                     new Vector2(randomX * GAME_SCALE_X, 0),
                     new Vector2(0, randomSpeed), 25, fruitType[no]));
@@ -352,7 +363,7 @@ class GameScreen extends Screen implements InputProcessor {
             float shieldTest = INVINCIBILITY_TIME - TimeUtils.timeSinceMillis(invincibleStartTime);
 
             if(shieldTest < 3000){
-                shieldTimer = shieldTest + Gdx.graphics.getDeltaTime();
+                float shieldTimer = shieldTest + Gdx.graphics.getDeltaTime();
                 int shieldSeconds = (int)(shieldTimer / 1000) % 60;
                 shieldText = Integer.toString(shieldSeconds + 1);
             }
@@ -371,7 +382,7 @@ class GameScreen extends Screen implements InputProcessor {
         if(playerCanFireBullets){
             float timerTest = FIRE_TIME_LIMIT - TimeUtils.timeSinceMillis(fireStartTime);
             if( timerTest < 3000)  {
-                bulletTimer = timerTest + Gdx.graphics.getDeltaTime();
+                float bulletTimer = timerTest + Gdx.graphics.getDeltaTime();
                 int bulletSeconds = (int)(bulletTimer / 1000)% 60;
                 bulletText = Integer.toString(bulletSeconds + 1);
             }
@@ -581,8 +592,6 @@ class GameScreen extends Screen implements InputProcessor {
 }
 
 //TODO: Lift platform only in classic mode
-//TODO: When pressing paddle it should not move until slide
-//TODO: Enemy and fruits should not be stuck together
 //TODO: Have the ability to turn off the music
 
 

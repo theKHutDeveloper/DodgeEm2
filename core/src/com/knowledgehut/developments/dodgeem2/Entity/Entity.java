@@ -81,6 +81,10 @@ abstract class Entity {
         this.texture.dispose();
     }
 
+    public float getScaledSize(){
+        return scaledSize;
+    }
+
     void convertToAnimation(Texture texture, int frames) {
         TextureRegion tmpTexture[][] = TextureRegion.split(texture,48,48);
         TextureRegion[] animationFrames = new TextureRegion[frames];

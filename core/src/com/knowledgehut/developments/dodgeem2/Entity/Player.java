@@ -135,5 +135,9 @@ public class Player extends Entity {
         position.x = screenX;
         circle.set(position.x + circleX, position.y + circleY, radius);
     }
+
+    public float getScaledSize(){
+        return super.getScaledSize();
+    }
 }
 

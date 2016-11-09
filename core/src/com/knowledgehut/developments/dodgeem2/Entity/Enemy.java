@@ -35,6 +35,9 @@ public class Enemy extends Entity{
         killMode = false;
     }
 
+    public float getVelocityY(){
+        return velocity.y;
+    }
 
     @Override
     public void update() {
@@ -97,7 +100,9 @@ public class Enemy extends Entity{
         velocity.set(0,y);
     }
 
-
+    public float getScaledSize(){
+        return super.getScaledSize();
+    }
 
 
 }
