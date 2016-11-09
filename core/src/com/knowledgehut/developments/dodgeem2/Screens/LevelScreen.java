@@ -51,14 +51,14 @@ class LevelScreen extends Screen implements InputProcessor{
             button.scale(-0.15f);
         }
 
-        int x = (int)(45 * GAME_SCALE_X);
-        int y = (int)(70 * GAME_SCALE_X);
+        int x = (int)(20 * GAME_SCALE_X);
+        int y = (int)(65 * GAME_SCALE_X);
         for(int i = 0; i < 30; i++){
             buttons.get(i).setPosition(x, y);
-            x += (int)(45 * GAME_SCALE_X);
+            x += (int)(55 * GAME_SCALE_X);
             if(i == 4 || i == 9 || i == 14 || i == 19 || i == 24){
-                x = (int)(45 * GAME_SCALE_X);
-                y += (int)(55 * GAME_SCALE_X);
+                x = (int)(20 * GAME_SCALE_X);
+                y += (int)(65 * GAME_SCALE_X);
             }
         }
 

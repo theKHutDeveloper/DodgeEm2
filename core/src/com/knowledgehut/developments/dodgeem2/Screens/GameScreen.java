@@ -60,6 +60,7 @@ class GameScreen extends Screen implements InputProcessor {
     private long FIRE_TIME_LIMIT = 10000;
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
+    private int offsetX;
     ///private Level levelManager;
 
     private int playerPointer;
@@ -106,7 +107,7 @@ class GameScreen extends Screen implements InputProcessor {
 
         playerTouched = false;
         playerPointer = -1;
-
+        offsetX = 0;
         int playerFrames = 2;
         player = new Player(new Texture(Gdx.files.internal("Images/pacman.png")),
                 new Vector2((DodgeEm2.WIDTH/2) * GAME_SCALE_X, (DodgeEm2.HEIGHT - 101) * GAME_SCALE_X),
@@ -545,6 +546,7 @@ class GameScreen extends Screen implements InputProcessor {
                     && screenY >= paddle.getPosition().y && screenY <= paddle.getPosition().y + paddle.getScale()) {
                     playerTouched = true;
                     playerPointer = pointer;
+                    offsetX = (int)(screenX - paddle.getPosition().x);
                 }
             }
         return true;
@@ -555,6 +557,7 @@ class GameScreen extends Screen implements InputProcessor {
         if(pointer == playerPointer){
             playerTouched = false;
             playerPointer = -1;
+            offsetX = 0;
         }
         return true;
     }
@@ -562,7 +565,7 @@ class GameScreen extends Screen implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if(TimeUtils.timeSinceMillis(screenActive) > delayTime)
-          if(playerTouched && playerPointer == pointer)  player.movePlayer(screenX);
+          if(playerTouched && playerPointer == pointer)  player.movePlayer(screenX - offsetX);
         return false;
     }
 
@@ -580,6 +583,7 @@ class GameScreen extends Screen implements InputProcessor {
 //TODO: Lift platform only in classic mode
 //TODO: When pressing paddle it should not move until slide
 //TODO: Enemy and fruits should not be stuck together
+//TODO: Have the ability to turn off the music
 
 
 
