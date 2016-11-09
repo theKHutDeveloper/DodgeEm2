@@ -2,6 +2,7 @@ package com.knowledgehut.developments.dodgeem2;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -14,7 +15,7 @@ public class DodgeEm2 extends ApplicationAdapter {
     public static int SCORE, FRUIT_SCORE, TOP_SCORE = 0;
 
     public static int ENEMIES_KILLED = 0;
-    public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN, PELLET, PLATFORM}
+    public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN}
     public static int CHERRY_SCORE, STRAWBERRY_SCORE, ORANGE_SCORE, GALAXIAN_SCORE, PELLET_SCORE = 0;
     public static boolean GAME_MODE = true; //0 - ARCADE, 1 = LEVELS
     public static int level_number = 0;
@@ -22,9 +23,17 @@ public class DodgeEm2 extends ApplicationAdapter {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private OrthoCamera camera;
+
+    public static Preferences prefs;
+
 	
 	@Override
 	public void create () {
+        prefs = Gdx.app.getPreferences("DodgeEm Preferences");
+        prefs.getBoolean("musicOn", true);
+        prefs.getInteger("level", 1);
+        prefs.flush();
+
 		batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         ScreenManager.setScreen(new TitleScreen());

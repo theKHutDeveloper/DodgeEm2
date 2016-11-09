@@ -118,7 +118,7 @@ class FinScreen extends Screen implements InputProcessor{
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         long delayTime = 1000;
         if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
-            ScreenManager.setScreen(new GameScreen());
+            ScreenManager.setScreen(new MenuScreen());
         }
 
         return true;

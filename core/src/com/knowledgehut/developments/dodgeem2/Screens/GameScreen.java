@@ -65,6 +65,7 @@ class GameScreen extends Screen implements InputProcessor {
     private int playerPointer;
 
     private Music backgroundMusic;
+    private boolean musicOn;
 
 
     @Override
@@ -125,9 +126,14 @@ class GameScreen extends Screen implements InputProcessor {
         fruitTextures[2] = new Texture(Gdx.files.internal("Images/mandarin.png"));
         fruitType[2] = ItemType.ORANGE;
 
-        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/halloween_hunting.mp3"));
-        backgroundMusic.setLooping(true);
-        backgroundMusic.play();
+        musicOn = DodgeEm2.prefs.getBoolean("musicOn");
+
+        if(musicOn){
+            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/halloween_hunting.mp3"));
+            backgroundMusic.setLooping(true);
+            backgroundMusic.play();
+        }
+
 
         icons.add(new Item(fruitTextures[0], new Vector2(10 * GAME_SCALE_X, 460 * GAME_SCALE_X),
                 new Vector2(0,0), 15,fruitType[0]));
@@ -268,7 +274,7 @@ class GameScreen extends Screen implements InputProcessor {
 
                 if(!playerInvincible && player.hasCollided(enemies.get(i).getCircle())){
                     if(enemies.get(i).getKillMode()) {
-                        backgroundMusic.stop();
+                        if(musicOn) backgroundMusic.stop();
                         ScreenManager.setScreen(new FinScreen());
                     }
                     break;
@@ -592,7 +598,7 @@ class GameScreen extends Screen implements InputProcessor {
 }
 
 //TODO: Lift platform only in classic mode
-//TODO: Have the ability to turn off the music
+
 
 
 
