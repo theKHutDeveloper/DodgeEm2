@@ -15,9 +15,14 @@ import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.Entity.*;
 //import com.knowledgehut.developments.dodgeem2.Level;
+
+import com.knowledgehut.developments.dodgeem2.SaveData;
 import com.knowledgehut.developments.dodgeem2.ScrollingBackground;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.*;
@@ -153,7 +158,25 @@ class GameScreen extends Screen implements InputProcessor {
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
 
-       // if(GAME_MODE){
+        /*SaveData saveData = new SaveData();
+
+        try {
+            saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"),"Barry Allen", 28500);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
+            for (SaveData.HighScores score: highScores) {
+                System.out.println(score.getName() + " : " + score.getScore());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
+
+        // if(GAME_MODE){
             //levelManager = new Level(DodgeEm2.level_number);
        // }
     }
@@ -196,10 +219,12 @@ class GameScreen extends Screen implements InputProcessor {
         else if(MAX_SPEED > 11 && MAX_SPEED <= 14){
             ADD_NEW_ENEMY_RATE = 36;
         }
-        else if(MAX_SPEED > 15){
+        else if(MAX_SPEED > 15 && MAX_SPEED<= 20){
             ADD_NEW_ENEMY_RATE = 25;
         }
-
+        else if(MAX_SPEED > 20 && MAX_SPEED<= 25){
+            ADD_NEW_ENEMY_RATE = 5;
+        }
         int MIN_SPEED = 1;
 
         if(TimeUtils.timeSinceMillis(startTime) > 30000){
@@ -597,7 +622,6 @@ class GameScreen extends Screen implements InputProcessor {
     }
 }
 
-//TODO: Lift platform only in classic mode
 
 
 
