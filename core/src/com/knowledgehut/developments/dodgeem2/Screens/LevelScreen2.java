@@ -1,142 +1,214 @@
 package com.knowledgehut.developments.dodgeem2.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.Entity.Button;
 
 import java.util.ArrayList;
 
-import static com.badlogic.gdx.Input.Buttons.LEFT;
+import static com.knowledgehut.developments.dodgeem2.DodgeEm2.HEIGHT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
 
-class LevelScreen2 extends Screen implements InputProcessor {
+class LevelScreen2 extends Screen {
 
     private OrthoCamera camera;
     private ArrayList<Button> buttons = new ArrayList<Button>();
-    private Sprite previous;
-    private Sprite background;
-    private Sprite dialog, play, marker_on, marker_off, marker_off2, next;
-    private long screenActive;
-    private float bkgScale;
+    private Stage stage;
+
+
+    LevelScreen2(int direction){
+        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
+        stage = new Stage(new FitViewport(WIDTH, HEIGHT, camera));
+
+        if(direction == 1) {
+            stage.addAction(Actions.moveTo(-stage.getWidth(), 0));
+        }
+
+        if(direction == 2){
+            stage.addAction(Actions.moveTo(-stage.getWidth(), 0));
+        }
+        stage.addAction(Actions.visible(false));
+        stage.act();
+    }
+
 
     @Override
     public void create() {
 
-        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
-        screenActive = System.currentTimeMillis();
-
         int accessLevel = DodgeEm2.prefs.getInteger("level");
 
-        float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
+        Gdx.input.setInputProcessor(stage);
 
-        Gdx.input.setInputProcessor(this);
-
-        Texture texture = new Texture(Gdx.files.internal("Images/title_background.png"));
-        bkgScale = texture.getWidth() * GAME_SCALE_X;
-        background = new Sprite(texture);
-
-        for(int i = 21; i < 41; i++){
+        for(int i = 13; i < 25; i++){
             if (accessLevel < i ) {
-                buttons.add(new Button(
-                        new Sprite(new Texture(Gdx.files.internal("Images/locked.png"))), true)
-                );
+                TextureRegion textureRegion[][] = TextureRegion.split(
+                        new Texture(Gdx.files.internal("Images/locked.png")), 50, 51);
+                TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+                buttons.add(new Button(new ImageButton(textureRegionDrawable),true));
             } else {
-                buttons.add(new Button(
-                        new Sprite(new Texture(Gdx.files.internal("Images/button_normal_"+i + ".png"))), false)
-                );
+                TextureRegion textureRegion[][] = TextureRegion.split(
+                        new Texture(Gdx.files.internal("Images/button_normal_"+i + ".png")), 50, 51);
+
+                TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+                TextureRegionDrawable textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+
+                buttons.add(new Button(new ImageButton(textureRegionDrawable,textureRegionDrawable1), false));
             }
         }
 
         for (Button button : buttons) {
-            button.getSprite().setSize(button.getSprite().getWidth() * GAME_SCALE_X,
-                    button.getSprite().getHeight() * GAME_SCALE_X);
-            button.getSprite().flip(false, true);
-            button.getSprite().scale(-0.15f);
+            button.getImage().setSize(button.getImage().getWidth() , button.getImage().getHeight() );
         }
 
-        int x = (int)(25 * GAME_SCALE_X);
-        int y = (int)(145 * GAME_SCALE_X);
+        int x = 37;
+        int y = 282;
 
-        for(int i = 0; i < 20; i++){
-            buttons.get(i).getSprite().setPosition(x, y);
-            x += (int)(55 * GAME_SCALE_X);
-            if(i == 4 || i == 9 || i == 14){
-                x = (int)(25 * GAME_SCALE_X);
-                y += (int)(50 * GAME_SCALE_X);
+        for(int i = 0; i < 12; i++){
+            buttons.get(i).getImage().setPosition(x, y);
+            x += 65;
+            if(i == 3 || i == 7){
+                x = 37;
+                y -= 60;
             }
         }
 
-        dialog = new Sprite(new Texture(Gdx.files.internal("Images/dialogbox.png")));
-        dialog.setSize(dialog.getWidth() * GAME_SCALE_X, dialog.getHeight() * GAME_SCALE_X);
-        dialog.flip(false, true);
-        dialog.setPosition(10 * GAME_SCALE_X, 50 * GAME_SCALE_X);
 
-        play = new Sprite(new Texture(Gdx.files.internal("Images/play_disabled.png")));
-        play.setSize(play.getWidth() * GAME_SCALE_X, play.getHeight() * GAME_SCALE_X);
-        play.flip(false, true);
-        play.setPosition(80 * GAME_SCALE_X,385 * GAME_SCALE_X);
+        Image dialog = new Image(new Texture(Gdx.files.internal("Images/dialog.png")));
+        dialog.setSize(dialog.getWidth() , dialog.getHeight() );
+        dialog.setPosition(20 , 120 );
 
-        marker_on = new Sprite(new Texture(Gdx.files.internal("Images/marker_on.png")));
-        marker_on.setSize(marker_on.getWidth() * GAME_SCALE_X, marker_on.getHeight() * GAME_SCALE_X);
-        marker_on.flip(false, true);
-        marker_on.setPosition(147 * GAME_SCALE_X,355 * GAME_SCALE_X);
+        Image text = new Image(new Texture(Gdx.files.internal("Images/select level.png")));
+        text.setSize(text.getWidth() , text.getHeight() );
+        text.setPosition(20 , 400 );
 
-        marker_off = new Sprite(new Texture(Gdx.files.internal("Images/marker_off.png")));
-        marker_off.setSize(marker_off.getWidth() * GAME_SCALE_X, marker_off.getHeight() * GAME_SCALE_X);
-        marker_off.flip(false, true);
-        marker_off.setPosition(117 * GAME_SCALE_X,355 * GAME_SCALE_X);
+        TextureRegion textureRegion[][] = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/previous.png")), 31, 31);
+        TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        TextureRegionDrawable textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton previous = new ImageButton(textureRegionDrawable, textureRegionDrawable1);
+        previous.setSize(previous.getWidth() , previous.getHeight() );
+        previous.setPosition(70 , 110 );
+        previous.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                stage.addAction(Actions.sequence(Actions.moveTo(-stage.getWidth(), 0, 1f),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new LevelScreen(2));
+                                    }
+                                }
+                        )));
+            }
+        });
 
-        marker_off2 = new Sprite(new Texture(Gdx.files.internal("Images/marker_off.png")));
-        marker_off2.setSize(marker_off2.getWidth() * GAME_SCALE_X, marker_off2.getHeight() * GAME_SCALE_X);
-        marker_off2.flip(false, true);
-        marker_off2.setPosition(177 * GAME_SCALE_X,355 * GAME_SCALE_X);
+        textureRegion = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/next.png")), 31, 32);
+        textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton next = new ImageButton(textureRegionDrawable, textureRegionDrawable1);
+        next.setSize(next.getWidth() , next.getHeight() );
+        next.setPosition(217 , 110 );
+        next.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                stage.addAction(Actions.sequence(Actions.parallel(Actions.fadeOut(.5f),
+                        Actions.moveBy(-stage.getWidth(), 0, .5f)),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new LevelScreen3(1));
+                                    }
+                                })));
+            }
+        });
 
-        next = new Sprite(new Texture(Gdx.files.internal("Images/next.png")));
-        next.setSize(next.getWidth() * GAME_SCALE_X, next.getHeight() * GAME_SCALE_X);
-        next.flip(false, true);
-        next.setPosition(205 * GAME_SCALE_X,348 * GAME_SCALE_X);
 
-        previous = new Sprite(new Texture(Gdx.files.internal("Images/previous.png")));
-        previous.setSize(previous.getWidth() * GAME_SCALE_X, previous.getHeight() * GAME_SCALE_X);
-        previous.flip(false, true);
-        previous.scale(-0.15f);
-        previous.setPosition(80 * GAME_SCALE_X, 348 * GAME_SCALE_X);
+        Image marker_on = new Image(new Texture(Gdx.files.internal("Images/marker_on.png")));
+        marker_on.setSize(marker_on.getWidth() , marker_on.getHeight() );
+        marker_on.setPosition(125 , 112 );
+
+        Image marker_off4 = new Image(new Texture(Gdx.files.internal("Images/marker_off.png")));
+        marker_off4.setSize(marker_off4.getWidth() , marker_off4.getHeight() );
+        marker_off4.setPosition(102 , 112 );
+
+        Image marker_off = new Image(new Texture(Gdx.files.internal("Images/marker_off.png")));
+        marker_off.setSize(marker_off.getWidth() , marker_off.getHeight() );
+        marker_off.setPosition(148 , 112 );
+
+        Image marker_off2 = new Image(new Texture(Gdx.files.internal("Images/marker_off.png")));
+        marker_off2.setSize(marker_off2.getWidth() , marker_off2.getHeight() );
+        marker_off2.setPosition(171 , 112 );
+
+        Image marker_off3 = new Image(new Texture(Gdx.files.internal("Images/marker_off.png")));
+        marker_off3.setSize(marker_off3.getWidth() , marker_off3.getHeight() );
+        marker_off3.setPosition(194 , 112 );
+
+        Texture texture = new Texture(Gdx.files.internal("Images/bkgnd_small.png"));
+        Image background = new Image(texture);
+        stage.addActor(background);
+        stage.addActor(dialog);
+        stage.addActor(next);
+        stage.addActor(previous);
+        stage.addActor(marker_off);
+        stage.addActor(marker_off4);
+        stage.addActor(marker_off3);
+        stage.addActor(marker_off2);
+        stage.addActor(marker_on);
+        stage.addActor(text);
+
+        for (Button button : buttons) {
+            stage.addActor(button.getImage());
+        }
+
+        for (int i = 0; i < buttons.size(); i++) {
+            if (!buttons.get(i).isLocked()) {
+                Button button = buttons.get(i);
+                final int finalI = i + 1;
+                button.getImage().addListener(new ChangeListener() {
+
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        ScreenManager.setScreen(new LevelDescription(finalI));
+                    }
+                });
+            }
+        }
+
+        stage.addAction(Actions.sequence(
+                Actions.visible(true),
+                Actions.moveTo(0,0, 1f)));
+
     }
 
         @Override
         public void update() {
             camera.update();
+            stage.act();
         }
 
         @Override
         public void render(SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            stage.draw();
 
-            spriteBatch.begin();
-
-            spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
-            dialog.draw(spriteBatch);
-            for (Button button : buttons) {
-                button.getSprite().draw(spriteBatch);
-            }
-            previous.draw(spriteBatch);
-            play.draw(spriteBatch);
-            next.draw(spriteBatch);
-            marker_on.draw(spriteBatch);
-            marker_off.draw(spriteBatch);
-            marker_off2.draw(spriteBatch);
-
-            spriteBatch.end();
         }
 
         @Override
@@ -146,17 +218,7 @@ class LevelScreen2 extends Screen implements InputProcessor {
 
         @Override
         public void dispose() {
-            background.getTexture().dispose();
-            for (Button button : buttons) {
-                button.getSprite().getTexture().dispose();
-            }
-            previous.getTexture().dispose();
-            dialog.getTexture().dispose();
-            next.getTexture().dispose();
-            play.getTexture().dispose();
-            marker_off.getTexture().dispose();
-            marker_on.getTexture().dispose();
-            marker_off2.getTexture().dispose();
+            stage.dispose();
         }
 
         @Override
@@ -169,73 +231,4 @@ class LevelScreen2 extends Screen implements InputProcessor {
 
         }
 
-        @Override
-        public boolean keyDown(int keycode) {
-
-            if(keycode == Input.Keys.LEFT) {
-                ScreenManager.setScreen(new LevelScreen());
-            }
-            return false;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-            return false;
-        }
-
-        @Override
-        public boolean keyTyped(char character) {
-            return false;
-        }
-
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            long delayTime = 1000;
-            if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
-                for (Button b : buttons) {
-                    if(!b.isLocked()) {
-                        if (screenX >= b.getSprite().getX() &&
-                                screenX <= b.getSprite().getX() + b.getSprite().getWidth() &&
-                                screenY >= b.getSprite().getY() &&
-                                screenY <= b.getSprite().getY() + b.getSprite().getHeight()) {
-                            System.out.println("A button has been pressed");
-                            break;
-                        }
-                    }
-                }
-
-                if (button == LEFT && screenX >= previous.getX() && screenX <= previous.getX() + previous.getWidth()
-                        && screenY >= previous.getY() && screenY <= previous.getY() + previous.getHeight()) {
-                    System.out.println("A button has been pressed");
-                    ScreenManager.setScreen(new LevelScreen());
-                }
-                else if (button == LEFT && screenX >= next.getX() && screenX <= next.getX() + next.getWidth()
-                        && screenY >= next.getY() && screenY <= next.getY() + next.getHeight()) {
-                    System.out.println("A button has been pressed");
-                    ScreenManager.setScreen(new LevelScreen3());
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            return false;
-        }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-            return false;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            return false;
-        }
-
-        @Override
-        public boolean scrolled(int amount) {
-            return false;
-        }
     }

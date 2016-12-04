@@ -1,0 +1,739 @@
+[
+{
+	"class": "Information",
+	"level": 1
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 4 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 2
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 5 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 3
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 3000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 4
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 6 cherries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 5
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 10 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 6
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 5000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 7
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 4 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 8
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 10 strawberries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 9
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 15 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 10
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 10 cherries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 11
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 6000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 12
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 10 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 13
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 5 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 15 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 14
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 15 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 15
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 7500 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 16
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 15 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 17
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 15 fruits"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 2 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 18
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 10,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 7 cherries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 19
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 20 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 20
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 10 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 21
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 20 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 22
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 15 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 23
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 13,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 24
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 15 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 15 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 15 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 25
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 13,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 10 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 10 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 10 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 26
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 25 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 27
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 26 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 28
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 20,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 29
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 20 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 30
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 20 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 31
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 20 strawberries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 32
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 22,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 33
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 25,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 34
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 30 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 35
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 2 galaxians"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 36
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 10 enemies"
+        },
+        {
+            "text": "Collect 10 cherries"
+        },
+        {
+            "text": "Collect 10 strawberries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 37
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 15 enemies"
+        },
+        {
+            "text": "Collect 10 strawberries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 38
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 20 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 10 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 39
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 4 galaxians"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 40
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 30 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 41
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 35 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 42
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 20 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 20 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Kill 20 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 43
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 30 strawberries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 44
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 33,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Kill 10 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 45
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 45,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 46
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 40 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 47
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 40 oranges"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 48
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 45 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 49
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 3 galaxians"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 20 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 50
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 45,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Kill 25 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 51
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 50 enemies"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 52
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 55 fruits"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 15 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 53
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 60 fruits"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 54
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 50,000 points or more"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 55
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 4 galaxians"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 40 fruits"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 20 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 56
+	"info": [
+        {
+            "class": "goals",
+            "text": "Collect 30 strawberries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 30 oranges"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 30 cherries"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 57
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 25 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 4 galaxians"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 15 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 58
+	"info": [
+        {
+            "class": "goals",
+            "text": "Kill 30 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 40 fruits"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 5 galaxians"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 7 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 59
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 60,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 20 pellets"
+        }
+    ]
+},
+{
+	"class": "Information",
+	"level": 60
+	"info": [
+        {
+            "class": "goals",
+            "text": "Score 100,000 points or more"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 8 galaxians"
+        }
+    ]
+},
+]

@@ -22,6 +22,7 @@ public class Item{
     private Circle circle;
     private DodgeEm2.ItemType itemType;
     private float GAME_SCALE_X;
+    private boolean pause;
 
     public Item(Texture texture, Vector2 vector2, Vector2 velocity, float scaledSize, DodgeEm2.ItemType itemType) {
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
@@ -37,11 +38,18 @@ public class Item{
         circleY = MathUtils.floor(scaledSize/2);
         radius = MathUtils.floor(circleY/2);
         circle = new Circle(position.x + circleX, position.y + circleY, radius);
+        pause = false;
+    }
+
+    public void setPause(boolean pause){
+        this.pause = pause;
     }
 
     public void update() {
-        position.add(velocity);
-        circle.set(position.x + circleX, position.y + circleY, radius);
+        if(!pause) {
+            position.add(velocity);
+            circle.set(position.x + circleX, position.y + circleY, radius);
+        }
     }
 
 

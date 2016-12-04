@@ -1,0 +1,7 @@
+[
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 8620
+}
+]

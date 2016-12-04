@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class AnimatedItem extends Entity {
     private int basicFrames;
+    private boolean pause;
 
     public AnimatedItem(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float scaledSize) {
         super(texture, vector2, velocity, frames, scaledSize);
@@ -16,17 +17,20 @@ public class AnimatedItem extends Entity {
         basicFrames = frames;
         convertToAnimation(texture, basicFrames);
 
-        /*circleX = MathUtils.floor(scaledSize/2);
-        circleY = MathUtils.floor(scaledSize/2);
-        radius = MathUtils.floor(circleY/2);
-        circle = new Circle(position.x + circleX, position.y + circleY, radius);*/
+        pause = false;
         looped = true;
+    }
+
+    public void setPause(boolean pause){
+        this.pause = pause;
     }
 
     @Override
     public void update() {
-        position.add(velocity);
-        circle.set(position.x + circleX, position.y + circleY, radius);
+        if(!pause) {
+            position.add(velocity);
+            circle.set(position.x + circleX, position.y + circleY, radius);
+        }
     }
 
     @Override

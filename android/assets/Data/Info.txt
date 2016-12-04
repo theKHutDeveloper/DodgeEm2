@@ -1,0 +1,52 @@
+[
+{
+	"class": "Classic Highscores",
+	"name": "Queen Bee",
+	"score": 345005
+},
+{
+	"class": "Classic Highscores",
+	"name": "Barry Allen",
+	"score": 28500
+},
+{
+	"class": "Classic Highscores",
+	"name": "Barry Allen",
+	"score": 28500
+},
+{
+	"class": "Classic Highscores",
+	"name": "Shy-shy",
+	"score": 20002
+},
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 18060
+},
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 15560
+},
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 12620
+},
+{
+	"class": "Classic Highscores",
+	"name": "Luke Cage",
+	"score": 10002
+},
+{
+	"class": "Classic Highscores",
+	"name": "Jessica Jones",
+	"score": 9800
+},
+{
+	"class": "Classic Highscores",
+	"name": "ABC",
+	"score": 4740
+}
+]

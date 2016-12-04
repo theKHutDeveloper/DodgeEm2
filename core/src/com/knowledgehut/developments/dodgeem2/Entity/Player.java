@@ -15,6 +15,7 @@ public class Player extends Entity {
     private boolean isShieldOn;
     private boolean isSparkleSet;
     private int baseFrames;
+    private boolean pause;
 
 
     public Player(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float screenWidth) {
@@ -40,6 +41,7 @@ public class Player extends Entity {
         isSparkleSet = false;
         sparkleEffect.setFlip(false, true);
         sparkleEffect.setPosition(position.x, position.y);
+        pause = false;
     }
 
     public void changePlayerTexture(String imgName){
@@ -52,6 +54,10 @@ public class Player extends Entity {
         isShieldOn = true;
     }
 
+    public void setPause(boolean pause){
+        this.pause = pause;
+    }
+
     public void hideShield(){
         isShieldOn = false;
     }
@@ -62,25 +68,30 @@ public class Player extends Entity {
     }
 
 
-    @Override
-    public void update() {
+    public void update(){}
 
-        if(position.x > (screenWidth - scaledSize)){
-            position.x = (screenWidth - scaledSize - 2 );
+    public void update(float paddleY) {
+        if(!pause) {
+            position.y = paddleY;
             circle.set(position.x + circleX, position.y + circleY, radius);
-        } else if(position.x < 1 ){
-            position.x = 2 ;
-            circle.set(position.x + circleX, position.y + circleY, radius);
+
+            if (position.x > (screenWidth - scaledSize)) {
+                position.x = (screenWidth - scaledSize - 2);
+                circle.set(position.x + circleX, position.y + circleY, radius);
+            } else if (position.x < 1) {
+                position.x = 2;
+                circle.set(position.x + circleX, position.y + circleY, radius);
+            }
+
+            if (isShieldOn) {
+
+                effect.setPosition(position.x + circleX, position.y + circleY);
+                effect.update(0.2f);
+            }
+
+            sparkleEffect.update(0.2f);
+            sparkleEffect.setPosition(position.x, position.y);
         }
-
-        if(isShieldOn){
-
-            effect.setPosition(position.x + circleX, position.y + circleY);
-            effect.update(0.2f);
-        }
-
-        sparkleEffect.update(0.2f);
-        sparkleEffect.setPosition(position.x, position.y);
     }
 
     @Override
@@ -110,9 +121,6 @@ public class Player extends Entity {
         return super.getCircle();
     }
 
-    /*public float getScale(){
-        return scaledSize;
-    }*/
 
     @Override
     public void dispose() {

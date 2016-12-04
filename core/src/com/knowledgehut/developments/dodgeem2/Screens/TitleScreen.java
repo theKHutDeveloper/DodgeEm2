@@ -1,65 +1,88 @@
 package com.knowledgehut.developments.dodgeem2.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 
+import static com.knowledgehut.developments.dodgeem2.DodgeEm2.HEIGHT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
-
-public class TitleScreen extends Screen implements InputProcessor {
+public class TitleScreen extends Screen{
 
     private OrthoCamera camera;
-    private BitmapFont bmpFont;
-    private Sprite background;
-    private Sprite title;
-    private String message;
-    private float GAME_SCALE_X;
-    private float bkgScale;
+    private Stage stage;
+
+    TitleScreen(){
+
+        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
+
+        stage = new Stage(new FitViewport(WIDTH,HEIGHT, camera));
+    }
 
     @Override
     public void create() {
-        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
-        GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
+        Gdx.input.setInputProcessor(stage);
 
-        Gdx.input.setInputProcessor(this);
+        Image background = new Image(new Texture(Gdx.files.internal("Images/bkgnd_small.png")));
 
-        Texture texture1 = new Texture(Gdx.files.internal("Images/title_background.png"));
-        bkgScale = texture1.getWidth() * GAME_SCALE_X;
-        background = new Sprite(texture1);
+        Image title = new Image(new Texture(Gdx.files.internal("Images/title.png")));
+        title.setPosition(40, 260);
 
-        Texture texture = new Texture(Gdx.files.internal("Images/title.png"));
-        title = new Sprite(texture);
-        title.flip(false, true);
+        Label label;
+        Label.LabelStyle fontStyle;
+        BitmapFont bmpFont = new BitmapFont(Gdx.files.internal("Fonts/impact_gold_small.fnt"), false);
 
-        bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), true);
-        bmpFont.getData().setScale(GAME_SCALE_X);
+        fontStyle = new Label.LabelStyle();
+        fontStyle.font = bmpFont;
 
-        message = "Touch screen to begin";
+        String message = "Touch screen to begin";
+        label = new Label(message, fontStyle);
+        label.setPosition(50, 160);
+
+        stage.addActor(background);
+        stage.addActor(title);
+        stage.addActor(label);
+
+        stage.addListener(new InputListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                stage.addAction(Actions.sequence(
+                        Actions.fadeOut(1f),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new MenuScreen());
+                                    }
+                                })));
+                return true;
+            }
+        });
     }
 
     @Override
     public  void update(){
         camera.update();
+        stage.act();
     }
 
     @Override
     public void render(SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
+        Gdx.gl.glClearColor( 0, 0, 0, 0 );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        spriteBatch.begin();
-        spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
-        //spriteBatch.draw(title, position.x, position.y, scaledSize, scaledSize);
-        spriteBatch.draw(title, 40 * GAME_SCALE_X, 160 * GAME_SCALE_X, title.getWidth() * GAME_SCALE_X, title.getHeight()* GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, message, 50 * GAME_SCALE_X, 260 * GAME_SCALE_X);
-        spriteBatch.end();
+        stage.draw();
     }
 
     @Override
@@ -69,10 +92,7 @@ public class TitleScreen extends Screen implements InputProcessor {
 
     @Override
     public void dispose() {
-        background.getTexture().dispose();
-        title.getTexture().dispose();
-        bmpFont.dispose();
-        Gdx.input.setInputProcessor(null);
+        stage.dispose();
     }
 
     @Override
@@ -83,46 +103,5 @@ public class TitleScreen extends Screen implements InputProcessor {
     @Override
     public void resume() {
 
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        ScreenManager.setScreen(new MenuScreen());
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
     }
 }

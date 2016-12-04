@@ -13,6 +13,7 @@ public class Enemy extends Entity{
     private boolean isDying;
     private boolean killMode;
     private boolean destroy;
+    private boolean pause;
 
     public Enemy(Texture texture, Vector2 vector2, Vector2 velocity, int frames, float scaledSize) {
         super(texture, vector2, velocity, frames, scaledSize);
@@ -27,6 +28,11 @@ public class Enemy extends Entity{
         isDying = false;
         killMode = true;
         destroy = false;
+        pause = false;
+    }
+
+    public void setPause(boolean pause){
+        this.pause = pause;
     }
 
     public void setEffect(){
@@ -41,20 +47,20 @@ public class Enemy extends Entity{
 
     @Override
     public void update() {
-        position.add(velocity);
-        circle.set(position.x + circleX, position.y + circleY, radius);
+        if(!pause) {
+            position.add(velocity);
+            circle.set(position.x + circleX, position.y + circleY, radius);
 
-        if(isDying){
-            effect.setPosition(position.x + circleX, position.y + circleY);
-            effect.update(0.2f);
-            if(effect.isComplete()){
-                position.y = -490f;
-                destroy = true;
+            if (isDying) {
+                effect.setPosition(position.x + circleX, position.y + circleY);
+                effect.update(0.2f);
+                if (effect.isComplete()) {
+                    position.y = -490f;
+                    destroy = true;
+                }
             }
         }
     }
-
-
 
     @Override
     public void render(SpriteBatch spriteBatch) {

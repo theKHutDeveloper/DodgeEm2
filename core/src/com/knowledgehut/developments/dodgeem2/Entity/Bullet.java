@@ -20,6 +20,7 @@ public class Bullet {
     private boolean collided;
     private float circleX, circleY, radius;
     private float scaledSize = 12;
+    private boolean pause;
 
     public Bullet(Texture texture, Vector2 position, Vector2 velocity){
         float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
@@ -37,22 +38,26 @@ public class Bullet {
         circleY = MathUtils.floor(texture.getHeight()/2);
         radius = MathUtils.floor(circleY/2);
         circle = new Circle(position.x + circleX, position.y + circleY, radius);
+        pause = false;
+    }
+
+    public void setPause(boolean pause){
+        this.pause = pause;
     }
 
     public boolean isFinished(){
         return finished;
     }
 
-    public void update(){//(float deltaTime){
-        //position.y -= (SPEED );// * deltaTime;
-        position.add(velocity);
-        circle.set(position.x + circleX, position.y + circleY, radius);
+    public void update(){
+        if(!pause) {
+            position.add(velocity);
+            circle.set(position.x + circleX, position.y + circleY, radius);
 
-        if(position.y < 0 || collided){
-            finished = true;
+            if (position.y < 0 || collided) {
+                finished = true;
+            }
         }
-        /*Gdx.app.debug("Bullet", "y = "+position.y + " x = "+position.x);
-        System.out.println("Bullet y = "+position.y + " x = "+position.x);*/
     }
 
     public void render(SpriteBatch spriteBatch){

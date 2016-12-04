@@ -21,11 +21,11 @@ abstract class Entity {
     float radius;
     boolean looped;
     private int frames;
-    private Animation animation;
+    protected Animation animation;
     private Texture texture;
     private float elapsedTime;
-    protected float scaledSize;
-    protected float GAME_SCALE_X;
+    float scaledSize;
+    float GAME_SCALE_X;
 
 
     Entity(Texture texture, Vector2 vector2, Vector2 velocity, int frames){

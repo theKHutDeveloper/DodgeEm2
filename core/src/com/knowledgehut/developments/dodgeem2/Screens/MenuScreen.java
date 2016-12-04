@@ -2,105 +2,172 @@ package com.knowledgehut.developments.dodgeem2.Screens;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 
+import static com.knowledgehut.developments.dodgeem2.DodgeEm2.GAME_MODE;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.HEIGHT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
-
-class MenuScreen extends Screen implements InputProcessor{
+class MenuScreen extends Screen{
     private OrthoCamera camera;
-    private Sprite arcade;
-    private Sprite classic;
-    private Sprite sound_on, music_on, highscore, music_off;
-    private String message;
-    private BitmapFont bmpFont;
-    private Sprite background;
-    private float GAME_SCALE_X;
-    private long delayTime = 1000;
-    private long screenActive;
-    private float bkgScale;
-    private boolean musicOn;
+    private Stage stage;
 
+
+      MenuScreen(){
+         camera = new OrthoCamera(WIDTH, HEIGHT);
+         stage = new Stage(new FitViewport(WIDTH,HEIGHT, camera));
+         stage.addAction(Actions.visible(false));
+         stage.act();
+         //stage.addAction(Actions.moveTo(stage.getWidth()*2, 0));
+
+
+    }
     @Override
     public void create() {
-        musicOn = DodgeEm2.prefs.getBoolean("musicOn");
+        Gdx.input.setInputProcessor(stage);
 
-        camera = new OrthoCamera(WIDTH, HEIGHT);
-        GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
-        Gdx.input.setInputProcessor(this);
+        Image img = new Image(new Texture(Gdx.files.internal("Images/bkgnd_small.png")));
 
-        Texture texture = new Texture(Gdx.files.internal("Images/title_background.png"));
-        bkgScale = texture.getWidth() * GAME_SCALE_X;
-        background = new Sprite(texture);
+        TextureRegion textureRegion[][] = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/sound.png")), 40, 41);
+        TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        TextureRegionDrawable textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton sound = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
+        sound.getStyle().imageChecked = sound.getStyle().imageDown;
+        if(!DodgeEm2.prefs.getBoolean("soundOn")){
+            sound.setChecked(true);
+        }
+        sound.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                boolean soundOn = DodgeEm2.prefs.getBoolean("soundOn");
+                soundOn = !soundOn;
 
-        arcade = new Sprite(new Texture(Gdx.files.internal("Images/arcade_off.png")));
-        classic = new Sprite(new Texture(Gdx.files.internal("Images/classic_off.png")));
-        sound_on = new Sprite(new Texture(Gdx.files.internal("Images/sound_on.png")));
-        music_on = new Sprite(new Texture(Gdx.files.internal("Images/music_on.png")));
-        music_off = new Sprite(new Texture(Gdx.files.internal("Images/music_off.png")));
-        highscore = new Sprite(new Texture(Gdx.files.internal("Images/highscores.png")));
+                DodgeEm2.prefs.putBoolean("soundOn", soundOn);
+                DodgeEm2.prefs.flush();
+            }
+        });
 
-        arcade.setSize(arcade.getWidth() * GAME_SCALE_X, arcade.getHeight() * GAME_SCALE_X);
-        classic.setSize(classic.getWidth() * GAME_SCALE_X, classic.getHeight() * GAME_SCALE_X);
-        sound_on.setSize(sound_on.getWidth() * GAME_SCALE_X, sound_on.getHeight() * GAME_SCALE_X);
-        music_on.setSize(music_on.getWidth() * GAME_SCALE_X, music_on.getHeight() * GAME_SCALE_X);
-        music_off.setSize(music_off.getWidth() * GAME_SCALE_X, music_off.getHeight() * GAME_SCALE_X);
-        highscore.setSize(highscore.getWidth() * GAME_SCALE_X, highscore.getHeight() * GAME_SCALE_X);
+        textureRegion = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/music.png")), 40, 41);
+        textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton music = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
+        music.getStyle().imageChecked = music.getStyle().imageDown;
 
-        arcade.flip(false, true);
-        classic.flip(false,true);
-        sound_on.flip(false,true);
-        music_on.flip(false,true);
-        music_off.flip(false,true);
-        highscore.flip(false,true);
+        if(!DodgeEm2.prefs.getBoolean("musicOn")){
+            music.setChecked(true);
+        }
+        music.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                boolean musicOn = DodgeEm2.prefs.getBoolean("musicOn");
+                musicOn = !musicOn;
 
-        arcade.setPosition(60 * GAME_SCALE_X, 210* GAME_SCALE_X);
-        classic.setPosition(60* GAME_SCALE_X, 260* GAME_SCALE_X);
-        sound_on.setPosition(70* GAME_SCALE_X, 400* GAME_SCALE_X);
-        music_on.setPosition(140* GAME_SCALE_X, 400* GAME_SCALE_X);
-        music_off.setPosition(140* GAME_SCALE_X, 400* GAME_SCALE_X);
-        highscore.setPosition(210* GAME_SCALE_X, 400* GAME_SCALE_X);
+                DodgeEm2.prefs.putBoolean("musicOn", musicOn);
+                DodgeEm2.prefs.flush();
+            }
+        });
 
-        message = "Choose GAME MODE";
-        bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), true);
-        bmpFont.getData().setScale(GAME_SCALE_X);
+        textureRegion = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/highscore.png")), 40, 41);
+        textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton highscore = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
+        highscore.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                stage.addAction(Actions.sequence(Actions.parallel(Actions.fadeOut(.5f),
+                        Actions.moveBy(-stage.getWidth(), 0, .5f)),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new HighScoreScreen());
+                                    }
+                                })));
+            }
+        });
 
-        screenActive = System.currentTimeMillis();
+
+        textureRegion = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/arcade.png")), 200, 35);
+        textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton arcade = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
+        arcade.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                ScreenManager.setScreen(new LevelScreen(1));
+            }
+        });
+
+        textureRegion = TextureRegion.split(
+                new Texture(Gdx.files.internal("Images/classic.png")), 200, 35);
+        textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
+        textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
+        ImageButton classic = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
+        classic.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                GAME_MODE = false;
+                ScreenManager.setScreen(new GameScreen(0));
+            }
+        });
+
+        arcade.setPosition(60 , 210);
+        classic.setPosition(60, 260);
+        sound.setPosition(70, 100);
+        music.setPosition(140, 100);
+        highscore.setPosition(210, 100);
+
+        Label label;
+        Label.LabelStyle fontStyle;
+        BitmapFont bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), false);
+
+        fontStyle = new Label.LabelStyle();
+        fontStyle.font = bmpFont;
+        String message = "Choose GAME MODE";
+        label = new Label(message, fontStyle);
+        label.setPosition(50, 390);
+
+        stage.addActor(img);
+        stage.addActor(arcade);
+        stage.addActor(classic);
+        stage.addActor(sound);
+        stage.addActor(music);
+        stage.addActor(highscore);
+        stage.addActor(label);
+
+        stage.addAction(Actions.sequence(
+                Actions.alpha(0f),
+                Actions.visible(true),
+                Actions.fadeIn(2f)
+                ));
     }
 
     @Override
     public void update() {
         camera.update();
+        stage.act();
     }
 
     @Override
     public void render(SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        spriteBatch.begin();
-
-        spriteBatch.draw(background, 0, 0, bkgScale, bkgScale);
-        bmpFont.draw(spriteBatch, message, 55 * GAME_SCALE_X, 150 * GAME_SCALE_X);
-        arcade.draw(spriteBatch);
-        classic.draw(spriteBatch);
-        sound_on.draw(spriteBatch);
-        if(musicOn){
-            music_on.draw(spriteBatch);
-        } else music_off.draw(spriteBatch);
-
-        highscore.draw(spriteBatch);
-
-        spriteBatch.end();
+        stage.draw();
     }
 
     @Override
@@ -110,13 +177,7 @@ class MenuScreen extends Screen implements InputProcessor{
 
     @Override
     public void dispose() {
-        arcade.getTexture().dispose();
-        classic.getTexture().dispose();
-        sound_on.getTexture().dispose();
-        music_on.getTexture().dispose();
-        music_off.getTexture().dispose();
-        highscore.getTexture().dispose();
-        background.getTexture().dispose();
+        stage.dispose();
     }
 
     @Override
@@ -127,74 +188,5 @@ class MenuScreen extends Screen implements InputProcessor{
     @Override
     public void resume() {
 
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
-            if (screenX >= arcade.getX() && screenX <= arcade.getX() + arcade.getWidth()
-                    && screenY >= arcade.getY() && screenY <= arcade.getY() + arcade.getHeight()) {
-                arcade.setTexture(new Texture(Gdx.files.internal("Images/arcade_on.png")));
-            } else if (screenX >= classic.getX() && screenX <= classic.getX() + classic.getWidth()
-                    && screenY >= classic.getY() && screenY <= classic.getY() + classic.getHeight()) {
-                classic.setTexture(new Texture(Gdx.files.internal("Images/classic_on.png")));
-            }
-
-            if (screenX >= music_on.getX() && screenX <= music_on.getX() + music_on.getWidth()
-                    && screenY >= music_on.getY() && screenY <= music_on.getY() + music_on.getHeight()) {
-                musicOn = !musicOn;
-
-                DodgeEm2.prefs.putBoolean("musicOn", musicOn);
-                DodgeEm2.prefs.flush();
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if(TimeUtils.timeSinceMillis(screenActive) > delayTime) {
-            if (screenX >= arcade.getX() && screenX <= arcade.getX() + arcade.getWidth()
-                    && screenY >= arcade.getY() && screenY <= arcade.getY() + arcade.getHeight()) {
-                ScreenManager.setScreen(new LevelScreen());
-            }
-
-            if (screenX >= classic.getX() && screenX <= classic.getX() + classic.getWidth()
-                    && screenY >= classic.getY() && screenY <= classic.getY() + classic.getHeight()) {
-                ScreenManager.setScreen(new GameScreen());
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
     }
 }

@@ -12,20 +12,21 @@ import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 public class ScrollingBackground {
 
     private Sprite sprite;
-    private int speed;
+    private float speed;
     private float y1, y2;
-    private float scale;
+    private float GAME_SCALE_X;
 
     public ScrollingBackground(Texture texture, int speed){
 
-        float GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
-        this.speed = speed;
-        scale = texture.getWidth() * GAME_SCALE_X;
+        GAME_SCALE_X = (float)(Gdx.graphics.getWidth()) / (float)(DodgeEm2.WIDTH);
+
+        this.speed = speed * GAME_SCALE_X;
 
         sprite = new Sprite(texture);
+        sprite.setSize(sprite.getWidth()*GAME_SCALE_X, Gdx.graphics.getHeight());
 
         y1 = 0;
-        y2 = sprite.getHeight()  * speed;
+        y2 = sprite.getHeight();
     }
 
 
@@ -40,8 +41,8 @@ public class ScrollingBackground {
         if(y1 >= 0) y2 = y1 - sprite.getHeight();
         if(y2 >= 0) y1 = y2 - sprite.getHeight();
 
-        spriteBatch.draw(sprite, 0, y1, scale, scale);
-        spriteBatch.draw(sprite, 0, y2, scale, scale);
+        spriteBatch.draw(sprite, 0, y1, sprite.getWidth(), sprite.getHeight());
+        spriteBatch.draw(sprite, 0, y2, sprite.getWidth(), sprite.getHeight());
     }
 
 
@@ -54,8 +55,8 @@ public class ScrollingBackground {
         y1 -= speed * deltaTime;
         y2 -= speed * deltaTime;
 
-        if(y1 + sprite.getHeight() <=0) y1 = y2 + sprite.getHeight();
-        if(y2 + sprite.getHeight() <=0) y2 = y1 + sprite.getHeight();
+        if(y1 + (sprite.getHeight() * GAME_SCALE_X) <=0) y1 = y2 + sprite.getHeight() * GAME_SCALE_X;
+        if(y2 + (sprite.getHeight()* GAME_SCALE_X) <=0)  y2 = y1 + sprite.getHeight()* GAME_SCALE_X;
     }
 
     @SuppressWarnings("unused")

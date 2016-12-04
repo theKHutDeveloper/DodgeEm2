@@ -3,7 +3,7 @@ package com.knowledgehut.developments.dodgeem2.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,28 +14,25 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.Entity.*;
-//import com.knowledgehut.developments.dodgeem2.Level;
-
-import com.knowledgehut.developments.dodgeem2.SaveData;
+import com.knowledgehut.developments.dodgeem2.Level;
 import com.knowledgehut.developments.dodgeem2.ScrollingBackground;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.*;
 
+
+
 class GameScreen extends Screen implements InputProcessor {
     private OrthoCamera camera;
-    private float GAME_SCALE_X;
+    private float GAME_SCALE_X, GAME_SCALE_Y;
 
     private Player player;
     private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
     private ArrayList<Item> fruits = new ArrayList<Item>();
     private ArrayList<Item> icons = new ArrayList<Item>();
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+
     private ArrayList<AnimatedItem> pellets = new ArrayList<AnimatedItem>();
     private Item galaxian;
     private Platform platform;
@@ -56,26 +53,44 @@ class GameScreen extends Screen implements InputProcessor {
     private boolean playerInvincible;
     private boolean playerTouched;
 
-    private long delayTime = 1000;
     private long screenActive;
     private long fireStartTime, invincibleStartTime;
     private long startTime, scoreTime;
     private long gameTime, galaxianTime;
+    private long platformMoveTime;
+
     private long FIRE_TIME_LIMIT = 10000;
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
     private int offsetX;
-    ///private Level levelManager;
+    private int platformMethod;
+    private Level levelManager;
 
     private int playerPointer;
+    private int playLevel;
 
-    private Music backgroundMusic;
-    private boolean musicOn;
+    private Music backgroundMusic, gameOver, slideUp, slideDown;
+    private Sound explode, bulletSound, playerEats;
+    private boolean musicOn, soundOn;
+    private boolean startPlatformMechanics;
+    private int platformRandom;
+    private boolean pause;
+
+    private long gameOverDelay;
+    private int gameEndLoop = 0;
+
+    GameScreen(int level){
+        if(level != 0){
+            playLevel = level;
+        }
+    }
 
 
     @Override
     public void create() {
         GAME_SCALE_X = (float)(Gdx.graphics.getWidth() )/ (float)(WIDTH);
+        GAME_SCALE_Y = (float)(Gdx.graphics.getHeight())/ (float)(HEIGHT);
+
         camera = new OrthoCamera(WIDTH, HEIGHT);
 
         screenActive = System.currentTimeMillis();
@@ -89,10 +104,10 @@ class GameScreen extends Screen implements InputProcessor {
 
         playerCanFireBullets = false;
         playerInvincible = true;
-        scoreText = "Score: ";
+        scoreText = "Score:  ";
         fruitText = "Fruits: ";
-        enemiesText = "Enemies: ";
-        timeText = "Time: ";
+        enemiesText = "Enemies:  ";
+        timeText = "Time:  ";
         cherryText = ":";
         berryText = ":";
         orangeText = ":";
@@ -100,24 +115,24 @@ class GameScreen extends Screen implements InputProcessor {
         bulletText = "";
         shieldText = "";
 
-        bmpFont = new BitmapFont(Gdx.files.internal("Fonts/mediumFont.fnt"), true);
+        bmpFont = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_small.fnt"), true);
         bmpFont.getData().setScale(GAME_SCALE_X);
         impactRed = new BitmapFont(Gdx.files.internal("Fonts/impact_red_large.fnt"), true);
         impactRed.getData().setScale(GAME_SCALE_X);
         impactSilver = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_large.fnt"), true);
         impactSilver.getData().setScale(GAME_SCALE_X);
 
-        background = new ScrollingBackground(new Texture(Gdx.files.internal("Images/Parallax100.png")), 1);
-        foreground = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkTransparent.png")), 2);
+        background = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkBlack_small.png")), 1);
+        foreground = new ScrollingBackground(new Texture(Gdx.files.internal("Images/BackdropBlackLittleSparkTransparent_small.png")), 2);
 
         playerTouched = false;
         playerPointer = -1;
         offsetX = 0;
         int playerFrames = 2;
+
         player = new Player(new Texture(Gdx.files.internal("Images/pacman.png")),
                 new Vector2((DodgeEm2.WIDTH/2) * GAME_SCALE_X, (DodgeEm2.HEIGHT - 101) * GAME_SCALE_X),
                 new Vector2(0,0), playerFrames, DodgeEm2.WIDTH * GAME_SCALE_X);
-
 
         enemyTextures[0] = new Texture(Gdx.files.internal("Images/cyborg_blink.png"));
         enemyTextures[1] = new Texture(Gdx.files.internal("Images/alien_blink.png"));
@@ -132,6 +147,7 @@ class GameScreen extends Screen implements InputProcessor {
         fruitType[2] = ItemType.ORANGE;
 
         musicOn = DodgeEm2.prefs.getBoolean("musicOn");
+        soundOn = DodgeEm2.prefs.getBoolean("soundOn");
 
         if(musicOn){
             backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/halloween_hunting.mp3"));
@@ -139,310 +155,261 @@ class GameScreen extends Screen implements InputProcessor {
             backgroundMusic.play();
         }
 
+        if(soundOn){
+            explode = Gdx.audio.newSound(Gdx.files.internal("Sounds/explosion1.ogg"));
+            playerEats = Gdx.audio.newSound(Gdx.files.internal("Sounds/pacman_eatghost.ogg"));
+            bulletSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/fiveSound.ogg"));
+            gameOver = Gdx.audio.newMusic(Gdx.files.internal("Sounds/pacman_game_over.mp3"));
+            gameOver.setLooping(false);
+            slideDown = Gdx.audio.newMusic(Gdx.files.internal("Sounds/slide_whistle_down.mp3"));
+            slideDown.setLooping(false);
+            slideUp = Gdx.audio.newMusic(Gdx.files.internal("Sounds/slide_whistle_up.mp3"));
+            slideUp.setLooping(false);
+        }
 
-        icons.add(new Item(fruitTextures[0], new Vector2(10 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+        icons.add(new Item(fruitTextures[0], new Vector2(10 * GAME_SCALE_X, 460 * GAME_SCALE_Y),
                 new Vector2(0,0), 15,fruitType[0]));
-        icons.add(new Item(fruitTextures[1], new Vector2(60 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+        icons.add(new Item(fruitTextures[1], new Vector2(60 * GAME_SCALE_X, 460 * GAME_SCALE_Y),
                 new Vector2(0,0), 15,fruitType[1]));
-        icons.add(new Item(fruitTextures[2], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_X),
+        icons.add(new Item(fruitTextures[2], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_Y),
                 new Vector2(0,0), 15,fruitType[2]));
         icons.add(new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
-                new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_X), new Vector2(0,0), 15, ItemType.GALAXIAN));
-
-
-        paddle = new Paddle(new Texture(Gdx.files.internal("Images/paddle.png")),
-                new Vector2(player.getPosition().x, 422 * GAME_SCALE_X));
+                new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_Y), new Vector2(0,0), 15, ItemType.GALAXIAN));
 
         platform = new Platform(new Texture(Gdx.files.internal("Images/metal_platform.png")),
-                new Vector2(0, 422 * GAME_SCALE_X), new Vector2(0,0));
+                new Vector2(0, 422 * GAME_SCALE_Y), new Vector2(0,0));
+
+        paddle = new Paddle(new Texture(Gdx.files.internal("Images/paddle.png")),
+                new Vector2(player.getPosition().x, platform.getPosition().y));
 
         startTime = scoreTime = gameTime = galaxianTime = TimeUtils.millis();
 
-        /*SaveData saveData = new SaveData();
+        platformMoveTime = 0;
+        startPlatformMechanics = false;
+        pause = false;
+        platformMethod = 0;
 
-        try {
-            saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"),"Barry Allen", 28500);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+         if(GAME_MODE){
+            levelManager = new Level(playLevel);
         }
-        try {
-            ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
-            for (SaveData.HighScores score: highScores) {
-                System.out.println(score.getName() + " : " + score.getScore());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-
-
-        // if(GAME_MODE){
-            //levelManager = new Level(DodgeEm2.level_number);
-       // }
     }
 
     @Override
     public void update() {
 
-        /*if(GAME_MODE){
+        if(GAME_MODE){
             if(levelManager.Success()){
-            levelManager.setLevel(++level_number);
-            clearScores();
-                backgroundMusic.stop();
+                //levelManager.setLevel(++playLevel);
+                if(DodgeEm2.prefs.getInteger("level") <= playLevel) {
+                    DodgeEm2.prefs.putInteger("level", ++playLevel);
+                }
+                if(musicOn) backgroundMusic.stop();
+                //send to new screen levelFinScreen
+                pause();
                 ScreenManager.setScreen(new FinScreen());
             }
-        }*/
-        float currentTime = TimeUtils.timeSinceMillis(gameTime) + Gdx.graphics.getDeltaTime();
-        int seconds = (int)(currentTime / 1000)% 60;
-        int minutes = (int)((currentTime / 1000)/60);
-
-        timeText = (minutes + " : " + (seconds<10?"0":"") + seconds);
-
-        player.update();
-        paddle.update(new Vector2(player.getPosition().x, player.getPosition().y));
-
-        counterToAddNewEnemy++;
-        counterToNewFruit++;
-        counterToNewPellet++;
-
-        if(TimeUtils.timeSinceMillis(scoreTime) > 10000){
-            SCORE += 20;
-            scoreTime = TimeUtils.millis();
         }
 
-        if(MAX_SPEED <= 5){
-            ADD_NEW_ENEMY_RATE = 100;
-        }
-        else if(MAX_SPEED > 5 && MAX_SPEED <= 10){
-            ADD_NEW_ENEMY_RATE = 50;
-        }
-        else if(MAX_SPEED > 11 && MAX_SPEED <= 14){
-            ADD_NEW_ENEMY_RATE = 36;
-        }
-        else if(MAX_SPEED > 15 && MAX_SPEED<= 20){
-            ADD_NEW_ENEMY_RATE = 25;
-        }
-        else if(MAX_SPEED > 20 && MAX_SPEED<= 25){
-            ADD_NEW_ENEMY_RATE = 5;
-        }
-        int MIN_SPEED = 1;
+        if(!pause) {
 
-        if(TimeUtils.timeSinceMillis(startTime) > 30000){
-            MAX_SPEED += 2;
-            startTime += 30000;
-            counterToAddNewEnemy = 0;
-        }
+            float currentTime = TimeUtils.timeSinceMillis(gameTime) + Gdx.graphics.getDeltaTime();
+            int seconds = (int) (currentTime / 1000) % 60;
+            int minutes = (int) ((currentTime / 1000) / 60);
 
-        if(counterToAddNewEnemy == ADD_NEW_ENEMY_RATE){
-            counterToAddNewEnemy = 0;
-            int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+            timeText = (minutes + " : " + (seconds < 10 ? "0" : "") + seconds);
 
-            int MIN_SIZE = 25;
-            int MAX_SIZE = 60;
-            int FRAME_SIZE = 5;
+            counterToAddNewEnemy++;
+            counterToNewFruit++;
+            counterToNewPellet++;
 
-            float randomSize = (float)(random.nextInt((MAX_SIZE - MIN_SIZE)+ 1) + MIN_SIZE);
-            float randomSpeed = (float)(MIN_SPEED + random.nextInt(MAX_SPEED));
+            if (TimeUtils.timeSinceMillis(gameTime) > 30000) {
+                if (platformMoveTime == 0) {
+                    platformMoveTime = TimeUtils.millis();
+                    startPlatformMechanics = true;
+                }
 
-            int no = random.nextInt(enemyTextures.length);
-            enemies.add(new Enemy(enemyTextures[no],
-                    new Vector2(randomX * GAME_SCALE_X, 0),
-                    new Vector2(0,randomSpeed), FRAME_SIZE, randomSize));
-        }
-
-        if(counterToNewFruit == 240){
-            counterToNewFruit = 0;
-            int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
-            int no = random.nextInt(fruitTextures.length);
-            float randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
-            for(Enemy enemy : enemies){
-                if(randomX >= enemy.getPosition().x && randomX <= enemy.getPosition().x + enemy.getScaledSize()
-                && randomSpeed == enemy.getVelocityY()){
-                    //change randomSpeed
-                    do {
-                        randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
+                //create a random generator to choose which platform method to evoke
+                if (startPlatformMechanics) {
+                    if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
+                        platformMethod = random.nextInt(7) + 1;
+                        startPlatformMechanics = false;
+                        System.out.println("platformMethod = " + platformMethod);
+                        System.out.println("platformMoveTime = " + platformMoveTime);
+                        System.out.println("startPlatformMechanics = " + startPlatformMechanics);
+                    } else {
+                        platformMethod = random.nextInt(4) + 1;
+                        startPlatformMechanics = false;
+                        System.out.println("platformMethod = " + platformMethod);
+                        System.out.println("platformMoveTime = " + platformMoveTime);
+                        System.out.println("startPlatformMechanics = " + startPlatformMechanics);
                     }
-                    while (randomSpeed != enemy.getVelocityY());
-
-                    break; //exit now that you found an enemy that is coupled
+                    platformRandom = random.nextInt(7000);
                 }
-            }
-            fruits.add(new Item(fruitTextures[no],
-                    new Vector2(randomX * GAME_SCALE_X, 0),
-                    new Vector2(0, randomSpeed), 25, fruitType[no]));
-        }
 
-        if(counterToNewPellet == 1200){
-            counterToNewPellet = 0;
-            int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
-            float randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
-
-            pellets.add(new AnimatedItem(new Texture(Gdx.files.internal("Images/pellet_anim.png")),
-                    new Vector2(randomX * GAME_SCALE_X, 0),
-                    new Vector2(0, randomSpeed), 5, 28));
-        }
-
-
-        if(TimeUtils.timeSinceMillis(galaxianTime) > 60000){
-            int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
-            float randomSpeed = (float)(MIN_SPEED + random.nextInt(6));
-
-            galaxian = new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
-                    new Vector2(randomX * GAME_SCALE_X,0), new Vector2(0,randomSpeed), 30, ItemType.GALAXIAN);
-            galaxianTime = TimeUtils.millis();
-        }
-
-        int SCREEN_HEIGHT = HEIGHT - 48;
-        if(!enemies.isEmpty()){
-            for(int i = enemies.size()-1; i >=0; i--){
-                enemies.get(i).update();
-
-                if(!playerInvincible && player.hasCollided(enemies.get(i).getCircle())){
-                    if(enemies.get(i).getKillMode()) {
-                        if(musicOn) backgroundMusic.stop();
-                        ScreenManager.setScreen(new FinScreen());
+                if (TimeUtils.timeSinceMillis(platformMoveTime) > (5000 + platformRandom) && !startPlatformMechanics) {//30000
+                    switch (platformMethod) {
+                        case 1:
+                            platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
+                            break;
+                        case 2:
+                            platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
+                            break;
+                        case 3:
+                            if (soundOn) slideUp.play();
+                            platform.movePlatform(platform.getPosition().y - (20 * GAME_SCALE_Y));
+                            break;
+                        case 4:
+                            platform.shrinkPlatform(40 * GAME_SCALE_X);
+                            break;
+                        case 5:
+                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                            platform.shrinkPlatform(40 * GAME_SCALE_X);
+                            break;
+                        case 6:
+                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                            platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
+                            break;
+                        case 7:
+                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                            platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
+                            break;
                     }
-                    break;
-                }
 
-                if(enemies.get(i).isDestroy()){
-                    enemies.remove(i);
-                }
-                else {
-                    for(int b = bullets.size()-1; b >= 0; b--) {
-                        if (enemies.get(i).bulletHitCollision(bullets.get(b).getCircle())) {
-                            enemies.get(i).setEffect();
-                            ENEMIES_KILLED += 1;
-                            SCORE += 2000;
-                            bullets.remove(b);
-                        }
+                    platformMoveTime = TimeUtils.millis();
+
+                    switch (platformMethod) {
+                        case 1:
+                            if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
+                        case 2:
+                            if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
+                        case 3:
+                            if (platform.hasPlatformFinishedMovingVertically()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
+                        case 4:
+                            if (platform.hasPlatformFinishedShrinking()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
+                        case 5:
+                            if (platform.hasPlatformFinishedShrinking()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
+                        case 6:
+                        case 7:
+                            if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                startPlatformMechanics = true;
+                            }
+                            break;
                     }
                 }
             }
-        }
-
-        if(!fruits.isEmpty()){
-            for(int i = fruits.size()-1; i >=0; i--){
-                fruits.get(i).update();
-
-                if(player.hasCollided(fruits.get(i).getCircle())){
-                    player.setSparkleEffect();
-                    FRUIT_SCORE += 1;
-                    switch (fruits.get(i).getItemType()){
-                        case CHERRY:
-                            CHERRY_SCORE++;
-                            SCORE += 100;
-                        break;
-                        case STRAWBERRY:
-                            STRAWBERRY_SCORE++;
-                            SCORE += 300;
-                        break;
-                        case ORANGE:
-                            ORANGE_SCORE++;
-                            SCORE += 500;
-                        break;
-                    }
-                    fruits.remove(i);
-                }
-                else if(fruits.get(i).getPosition().y > SCREEN_HEIGHT * GAME_SCALE_X){
-                    fruits.remove(i);
-                }
+            if (TimeUtils.timeSinceMillis(scoreTime) > 10000) {
+                SCORE += 20;
+                scoreTime = TimeUtils.millis();
             }
         }
 
-        if(!pellets.isEmpty()){
-            for(int i = pellets.size()-1; i >=0; i--){
-
-                if(player.hasCollided(pellets.get(i).getCircle())){
-                    playerCanFireBullets = true;
-                    fireStartTime = TimeUtils.millis();
-                    player.changePlayerTexture("Images/bomber_pacman.png");
-                    pellets.remove(i);
-                }
-                else if(pellets.get(i).getPosition().y > SCREEN_HEIGHT * GAME_SCALE_X){
-                    pellets.remove(i);
-                }
-
-                if( i < pellets.size()) pellets.get(i).update();
+        if(!pause) {
+            if (MAX_SPEED <= 5) {
+                ADD_NEW_ENEMY_RATE = 100;
+            } else if (MAX_SPEED > 5 && MAX_SPEED <= 10) {
+                ADD_NEW_ENEMY_RATE = 50;
+            } else if (MAX_SPEED > 11 && MAX_SPEED <= 14) {
+                ADD_NEW_ENEMY_RATE = 36;
+            } else if (MAX_SPEED > 15 && MAX_SPEED <= 20) {
+                ADD_NEW_ENEMY_RATE = 25;
+            } else if (MAX_SPEED > 20 && MAX_SPEED <= 25) {
+                ADD_NEW_ENEMY_RATE = 5;
             }
+            int MIN_SPEED = 1;
+
+            if (TimeUtils.timeSinceMillis(startTime) > 30000) {
+                MAX_SPEED += 2;
+                startTime += 30000;
+                counterToAddNewEnemy = 0;
+            }
+
+            if (counterToAddNewEnemy == ADD_NEW_ENEMY_RATE) {
+                createNewEnemy(MIN_SPEED);
+            }
+
+            if (counterToNewFruit == 240) {
+                createNewFruits(MIN_SPEED);
+            }
+
+            if (counterToNewPellet == 1200) {
+                createNewPellet(MIN_SPEED);
+            }
+
+            if (TimeUtils.timeSinceMillis(galaxianTime) > 60000) {//60000
+                createNewGalaxian(MIN_SPEED);
+            }
+
+            playerGone();
+            enemyCollisions();
+            fruitCollisions();
+            pelletCollided();
+            galaxianCollisions();
+            bulletsCull();
+            playerInvincibility();
+            fireBullets();
+
+            for (Bullet bullet : bullets) {
+                bullet.update();
+            }
+
+            boolean moveDown = platform.update(422 * GAME_SCALE_Y, 180 * GAME_SCALE_Y);
+
+            if (moveDown)
+                if (soundOn) slideDown.play();
+
+            paddle.update(player.getPosition(), platform.getPosition());
+            player.update(paddle.getPosition().y - (43 * GAME_SCALE_X));
+
+            playerMustFall();
         }
 
-        if(!bullets.isEmpty()){
-            for (int i = bullets.size()-1; i >=0 ; i--) {
-                if(bullets.get(i).isFinished()){
-                    bullets.remove(i);
-                }
-            }
-        }
-
-        if(galaxian != null){
-            galaxian.update();
-            if(player.hasCollided(galaxian.getCircle())){
-                galaxian.setPosition(new Vector2(galaxian.getPosition().x * GAME_SCALE_X, 500 * GAME_SCALE_X));
-                SCORE += 3000;
-                GALAXIAN_SCORE++;
-                playerInvincible = true;
-                invincibleStartTime = TimeUtils.millis();
-            }
-            if(galaxian.getPosition().y > SCREEN_HEIGHT * GAME_SCALE_X){
-                galaxian.dispose();
-            }
-        }
-
-        if(playerInvincible){
-            long INVINCIBILITY_TIME = 20000;
-            float shieldTest = INVINCIBILITY_TIME - TimeUtils.timeSinceMillis(invincibleStartTime);
-
-            if(shieldTest < 3000){
-                float shieldTimer = shieldTest + Gdx.graphics.getDeltaTime();
-                int shieldSeconds = (int)(shieldTimer / 1000) % 60;
-                shieldText = Integer.toString(shieldSeconds + 1);
-            }
-            if(TimeUtils.timeSinceMillis(invincibleStartTime) > INVINCIBILITY_TIME){
-                playerInvincible = false;
-                player.hideShield();
-                shieldText = "";
-            }
-            else if(TimeUtils.timeSinceMillis(invincibleStartTime) < INVINCIBILITY_TIME){
-                //player is invincible
-                player.showShield();
-
-            }
-        }
-
-        if(playerCanFireBullets){
-            float timerTest = FIRE_TIME_LIMIT - TimeUtils.timeSinceMillis(fireStartTime);
-            if( timerTest < 3000)  {
-                float bulletTimer = timerTest + Gdx.graphics.getDeltaTime();
-                int bulletSeconds = (int)(bulletTimer / 1000)% 60;
-                bulletText = Integer.toString(bulletSeconds + 1);
-            }
-            if(TimeUtils.timeSinceMillis(fireStartTime) > FIRE_TIME_LIMIT){
-                playerCanFireBullets = false;
-                player.changePlayerTexture("Images/pacman.png");
-                bulletText = "";
-            }
-        }
-
-        for (Bullet bullet : bullets) {
-            bullet.update();
-        }
-
-        platform.update();
         camera.update();
+
+        if(pause && (!GAME_MODE || (GAME_MODE && !levelManager.Success()))){
+            if((soundOn) && !gameOver.isPlaying()){
+                ScreenManager.setScreen(new BlankScreen(2));
+            } else if(!soundOn){
+                if(gameEndLoop == 0) {
+                    gameOverDelay = TimeUtils.millis();
+                    gameEndLoop = 1;
+                }
+                if(TimeUtils.timeSinceMillis(gameOverDelay) > 2000){
+                    if(!GAME_MODE) ScreenManager.setScreen(new BlankScreen(2));
+                    if(GAME_MODE) ScreenManager.setScreen(new BlankScreen(4));
+                }
+            }
+        }
     }
 
     @Override
     public void render(SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
+        Gdx.gl.glClearColor( 0, 0, 0, 0 );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 
         spriteBatch.begin();
         background.updateAndRender(0.05f, spriteBatch);
         foreground.updateAndRender(0.1f, spriteBatch);
 
         bmpFont.draw(spriteBatch, scoreText + Integer.toString(SCORE), 10 * GAME_SCALE_X, 10 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED), 210 * GAME_SCALE_X, 10 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, timeText, 100 * GAME_SCALE_X, 10 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED), 230 * GAME_SCALE_X, 10 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, timeText, 150 * GAME_SCALE_X, 10 * GAME_SCALE_X);
 
         player.render(spriteBatch);
 
@@ -462,34 +429,26 @@ class GameScreen extends Screen implements InputProcessor {
             bullet.render(spriteBatch);
         }
 
+
         if(galaxian != null){
             galaxian.render(spriteBatch);
         }
 
         spriteBatch.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        //shapeRenderer.setColor(Color.RED);
-        /*shapeRenderer.circle(player.getCircle().x, player.getCircle().y, player.getCircle().radius);
-        for (Enemy enemy : enemies) {
-            shapeRenderer.circle(enemy.getCircle().x, enemy.getCircle().y, enemy.getCircle().radius);
-        }*/
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rectLine(0,HEIGHT * GAME_SCALE_X, WIDTH * GAME_SCALE_X, HEIGHT * GAME_SCALE_X, 102 * GAME_SCALE_X);
-        shapeRenderer.end();
 
         spriteBatch.begin();
         impactRed.draw(spriteBatch, bulletText, 160 * GAME_SCALE_X, 250 * GAME_SCALE_X);
         impactSilver.draw(spriteBatch, shieldText, 160 * GAME_SCALE_X, 200 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
 
         for (Item icon : icons) {
             icon.render(spriteBatch);
         }
-        bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 30 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 30 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+        bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+        bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+        bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
 
         platform.render(spriteBatch);
         paddle.render(spriteBatch);
@@ -546,16 +505,87 @@ class GameScreen extends Screen implements InputProcessor {
             icon.dispose();
         }
 
+        if(musicOn){
+            backgroundMusic.dispose();
+        }
+
+        if(soundOn) {
+            bulletSound.dispose();
+            explode.dispose();
+            playerEats.dispose();
+            gameOver.dispose();
+            slideDown.dispose();
+            slideUp.dispose();
+        }
     }
 
     @Override
     public void pause() {
+        for (Enemy enemy : enemies) {
+            enemy.setPause(true);
+        }
 
+        for (Item fruit : fruits) {
+            fruit.setPause(true);
+        }
+
+        for (AnimatedItem pellet : pellets) {
+            pellet.setPause(true);
+        }
+
+        for (Bullet bullet : bullets) {
+            bullet.setPause(true);
+        }
+
+        player.setPause(true);
+        if(galaxian !=null)galaxian.setPause(true);
+        paddle.setPause(true);
+        platform.setPause(true);
+        pause = true;
     }
 
     @Override
     public void resume() {
+        for (Enemy enemy : enemies) {
+            enemy.setPause(false);
+        }
 
+        for (Item fruit : fruits) {
+            fruit.setPause(false);
+        }
+
+        for (AnimatedItem pellet : pellets) {
+            pellet.setPause(false);
+        }
+
+        for (Bullet bullet : bullets) {
+            bullet.setPause(false);
+        }
+
+        bulletText = "";
+        shieldText = "";
+
+        player.setPause(false);
+        if(galaxian !=null)galaxian.setPause(false);
+        paddle.setPause(false);
+        platform.setPause(false);
+        pause = false;
+    }
+
+    private boolean playerMustFall(){
+        boolean fall = false;
+
+        if((platform.getPosition().x + platform.getWidth()) <= paddle.getPosition().x &&
+                (paddle.getPosition().x > 0 && paddle.getPosition().x < WIDTH * GAME_SCALE_X )){
+            fall = true;
+            paddle.fall(10 * GAME_SCALE_Y);
+        } else if(platform.getPosition().x > (paddle.getPosition().x + paddle.getWidth()) &&
+                (paddle.getPosition().x > 0 && paddle.getPosition().x < WIDTH * GAME_SCALE_X )){
+            fall = true;
+            paddle.fall(10 * GAME_SCALE_Y);
+        }
+
+        return fall;
     }
 
     @Override
@@ -575,22 +605,25 @@ class GameScreen extends Screen implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (TimeUtils.timeSinceMillis(screenActive) > delayTime)
-            if (playerCanFireBullets) {
-                if (TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT) {
-                    bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
-                            new Vector2(player.getCircle().x, player.getPosition().y), new Vector2(0f, -3f)));
+        if(!pause) {
+            //if (TimeUtils.timeSinceMillis(screenActive) > delayTime)
+                if (playerCanFireBullets) {
+                    if (TimeUtils.timeSinceMillis(fireStartTime) < FIRE_TIME_LIMIT) {
+                        bullets.add(new Bullet(new Texture(Gdx.files.internal("Images/bullet.png")),
+                                new Vector2(player.getCircle().x, player.getPosition().y), new Vector2(0f, -3f)));
+                        if (soundOn) bulletSound.play();
+                    }
                 }
-            }
 
-            if(playerPointer == -1){
+            if (playerPointer == -1) {
                 if (screenX >= paddle.getPosition().x && screenX <= paddle.getPosition().x + paddle.getScale()
-                    && screenY >= paddle.getPosition().y && screenY <= paddle.getPosition().y + paddle.getScale()) {
+                        && screenY >= paddle.getPosition().y && screenY <= paddle.getPosition().y + paddle.getScale()) {
                     playerTouched = true;
                     playerPointer = pointer;
-                    offsetX = (int)(screenX - paddle.getPosition().x);
+                    offsetX = (int) (screenX - paddle.getPosition().x);
                 }
             }
+        }
         return true;
     }
 
@@ -606,8 +639,11 @@ class GameScreen extends Screen implements InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        long delayTime = 1000;
         if(TimeUtils.timeSinceMillis(screenActive) > delayTime)
-          if(playerTouched && playerPointer == pointer)  player.movePlayer(screenX - offsetX);
+            if(!pause) {
+                if (playerTouched && playerPointer == pointer) player.movePlayer(screenX - offsetX);
+            }
         return false;
     }
 
@@ -620,9 +656,263 @@ class GameScreen extends Screen implements InputProcessor {
     public boolean scrolled(int amount) {
         return false;
     }
+
+    private void createNewFruits(int MIN_SPEED){
+        counterToNewFruit = 0;
+        int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+        int no = random.nextInt(fruitTextures.length);
+        float randomSpeed = (float) (MIN_SPEED + random.nextInt(6));
+        for (Enemy enemy : enemies) {
+            if (randomX >= enemy.getPosition().x && randomX <= enemy.getPosition().x + enemy.getScaledSize()
+                    && randomSpeed == enemy.getVelocityY()) {
+                //change randomSpeed
+                do {
+                    randomSpeed = (float) (MIN_SPEED + random.nextInt(6));
+                }
+                while (randomSpeed != enemy.getVelocityY());
+
+                break;
+            }
+        }
+        fruits.add(new Item(fruitTextures[no],
+                new Vector2(randomX * GAME_SCALE_X, 0),
+                new Vector2(0, randomSpeed), 25, fruitType[no]));
+    }
+
+    private void createNewEnemy(int MIN_SPEED){
+        counterToAddNewEnemy = 0;
+        int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+
+        int MIN_SIZE = 25;
+        int MAX_SIZE = 60;
+        int FRAME_SIZE = 5;
+
+        float randomSize = (float) (random.nextInt((MAX_SIZE - MIN_SIZE) + 1) + MIN_SIZE);
+        float randomSpeed = (float) (MIN_SPEED + random.nextInt(MAX_SPEED));
+
+        int no = random.nextInt(enemyTextures.length);
+        enemies.add(new Enemy(enemyTextures[no],
+                new Vector2(randomX * GAME_SCALE_X, 0),
+                new Vector2(0, randomSpeed), FRAME_SIZE, randomSize));
+    }
+
+    private void createNewPellet(int MIN_SPEED){
+        counterToNewPellet = 0;
+        int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+        float randomSpeed = (float) (MIN_SPEED + random.nextInt(6));
+
+        pellets.add(new AnimatedItem(new Texture(Gdx.files.internal("Images/pellet_anim.png")),
+                new Vector2(randomX * GAME_SCALE_X, 0),
+                new Vector2(0, randomSpeed), 5, 28));
+    }
+
+    private void createNewGalaxian(int MIN_SPEED){
+        int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+        float randomSpeed = (float) (MIN_SPEED + random.nextInt(6));
+
+        galaxian = new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
+                new Vector2(randomX * GAME_SCALE_X, 0), new Vector2(0, randomSpeed), 30, ItemType.GALAXIAN);
+        galaxianTime = TimeUtils.millis();
+    }
+
+    private void pelletCollided(){
+        if (!pellets.isEmpty()) {
+            for (int i = pellets.size() - 1; i >= 0; i--) {
+
+                if (player.hasCollided(pellets.get(i).getCircle())) {
+                    if (soundOn) playerEats.play();
+                    playerCanFireBullets = true;
+                    fireStartTime = TimeUtils.millis();
+                    player.changePlayerTexture("Images/bomber_pacman.png");
+                    pellets.remove(i);
+                } else if (pellets.get(i).getPosition().y > HEIGHT * GAME_SCALE_Y) {
+                    pellets.remove(i);
+                }
+
+                if (i < pellets.size()) pellets.get(i).update();
+            }
+        }
+    }
+
+    private void enemyCollisions(){
+        if (!enemies.isEmpty()) {
+            for (int i = enemies.size() - 1; i >= 0; i--) {
+                enemies.get(i).update();
+
+                if (!playerInvincible && player.hasCollided(enemies.get(i).getCircle())) {
+                    if (enemies.get(i).getKillMode()) {
+                        if (soundOn) gameOver.play();
+                        if (musicOn) backgroundMusic.stop();
+                        pause();
+                    }
+                }
+
+                if (enemies.get(i).isDestroy()) {
+                    enemies.remove(i);
+                } else {
+                    for (int b = bullets.size() - 1; b >= 0; b--) {
+                        if (enemies.get(i).bulletHitCollision(bullets.get(b).getCircle())) {
+                            if (soundOn) explode.play();
+                            enemies.get(i).setEffect();
+                            ENEMIES_KILLED += 1;
+                            SCORE += 2000;
+                            bullets.remove(b);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void fruitCollisions(){
+        if (!fruits.isEmpty()) {
+            for (int i = fruits.size() - 1; i >= 0; i--) {
+                fruits.get(i).update();
+
+                if (player.hasCollided(fruits.get(i).getCircle())) {
+                    if (soundOn) playerEats.play();
+                    player.setSparkleEffect();
+                    FRUIT_SCORE += 1;
+                    switch (fruits.get(i).getItemType()) {
+                        case CHERRY:
+                            CHERRY_SCORE++;
+                            SCORE += 100;
+                            break;
+                        case STRAWBERRY:
+                            STRAWBERRY_SCORE++;
+                            SCORE += 300;
+                            break;
+                        case ORANGE:
+                            ORANGE_SCORE++;
+                            SCORE += 500;
+                            break;
+                    }
+                    fruits.remove(i);
+                } else if (fruits.get(i).getPosition().y > HEIGHT * GAME_SCALE_Y) {
+                    fruits.remove(i);
+                }
+            }
+        }
+    }
+
+    private void galaxianCollisions(){
+        if (galaxian != null) {
+            galaxian.update();
+            if (player.hasCollided(galaxian.getCircle())) {
+                if (soundOn) playerEats.play();
+                galaxian.setPosition(new Vector2(galaxian.getPosition().x * GAME_SCALE_X, 500 * GAME_SCALE_Y));
+                SCORE += 3000;
+                GALAXIAN_SCORE++;
+                playerInvincible = true;
+                invincibleStartTime = TimeUtils.millis();
+            }
+            if (galaxian.getPosition().y > HEIGHT * GAME_SCALE_X) {
+                galaxian.dispose();
+            }
+        }
+    }
+
+    private void playerInvincibility(){
+        if (playerInvincible) {
+            long INVINCIBILITY_TIME = 20000;
+            float shieldTest = INVINCIBILITY_TIME - TimeUtils.timeSinceMillis(invincibleStartTime);
+
+            if (shieldTest < 3000) {
+                float shieldTimer = shieldTest + Gdx.graphics.getDeltaTime();
+                int shieldSeconds = (int) (shieldTimer / 1000) % 60;
+                shieldText = Integer.toString(shieldSeconds + 1);
+            }
+            if (TimeUtils.timeSinceMillis(invincibleStartTime) > INVINCIBILITY_TIME) {
+                playerInvincible = false;
+                player.hideShield();
+                shieldText = "";
+            } else if (TimeUtils.timeSinceMillis(invincibleStartTime) < INVINCIBILITY_TIME) {
+                player.showShield();
+            }
+        }
+    }
+
+    private void fireBullets(){
+        if (playerCanFireBullets) {
+            float timerTest = FIRE_TIME_LIMIT - TimeUtils.timeSinceMillis(fireStartTime);
+            if (timerTest < 3000) {
+                float bulletTimer = timerTest + Gdx.graphics.getDeltaTime();
+                int bulletSeconds = (int) (bulletTimer / 1000) % 60;
+                bulletText = Integer.toString(bulletSeconds + 1);
+            }
+            if (TimeUtils.timeSinceMillis(fireStartTime) > FIRE_TIME_LIMIT) {
+                playerCanFireBullets = false;
+                player.changePlayerTexture("Images/pacman.png");
+                bulletText = "";
+            }
+        }
+
+    }
+
+    private void bulletsCull(){
+        if (!bullets.isEmpty()) {
+            for (int i = bullets.size() - 1; i >= 0; i--) {
+                if (bullets.get(i).isFinished()) {
+                    bullets.remove(i);
+                }
+            }
+        }
+    }
+
+    private void playerGone(){
+        if (player.getPosition().y > HEIGHT * GAME_SCALE_Y) {
+            if (soundOn) gameOver.play();
+            if (musicOn) backgroundMusic.stop();
+            pause();
+        }
+    }
 }
 
 
+//import com.knowledgehut.developments.dodgeem2.Level;
+
+// private ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
+// private long asteroidStartTime, asteroidTime;
+/*asteroidTime = TimeUtils.millis();
+asteroidStartTime = 7000 + random.nextInt(7000);*/
+/*if (TimeUtils.timeSinceMillis(asteroidTime) > asteroidStartTime) {
+                int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
+                //float randomSpeed = (float)(2 + random.nextInt(3));
+                asteroids.add(new Asteroid(new Texture(Gdx.files.internal("Images/asteroids.png")),
+                        new Vector2(randomX * GAME_SCALE_X, 0),
+                        new Vector2(0, .5f),
+                        16
+                ));
+                asteroidStartTime = 7000 + random.nextInt(7000);
+                asteroidTime = TimeUtils.millis();
+            }*/
+
+/*for (Asteroid asteroid : asteroids) {
+                asteroid.update();
+            }*/
+/*for (Asteroid asteroid : asteroids) {
+            asteroid.render(spriteBatch);
+        }*/
+
+        /*for (Asteroid asteroid : asteroids) {
+            asteroid.dispose();
+        }*/
+
+        /*for (Asteroid asteroid : asteroids) {
+            asteroid.setPause(true);
+        }*/
+        /*for (Asteroid asteroid : asteroids) {
+            asteroid.setPause(false);
+        }*/
 
 
 
+
+
+//======================================================================================
+
+        /*shapeRenderer.setColor(Color.RED);
+        shapeRenderer.circle(player.getCircle().x, player.getCircle().y, player.getCircle().radius);
+        for (Enemy enemy : enemies) {
+            shapeRenderer.circle(enemy.getCircle().x, enemy.getCircle().y, enemy.getCircle().radius);
+        }*/
