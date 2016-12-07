@@ -4,12 +4,12 @@ package com.knowledgehut.developments.dodgeem2;
 public class Level {
 
     private int level_number;
-    private int fruits, cherry, strawberry, orange, galaxian, pellet;
+    private int fruits, cherry, strawberry, orange, galaxian;
     private int score, enemy;
 
     public Level(int level_number){
         this.level_number = level_number;
-        fruits = cherry = strawberry = orange = galaxian = pellet = score = 0;
+        fruits = cherry = strawberry = orange = galaxian = score = 0;
         enemy = 0;
         levelCreator();
 
@@ -33,10 +33,10 @@ public class Level {
             case 14: cherry = 15; orange = 5; break;
             case 15: score = 7500; break;
             case 16: enemy = 15; break;
-            case 17: fruits = 15; pellet = 2; break;
+            case 17: fruits = 15; enemy = 10; break;
             case 18: score = 10000; cherry = 7; break;
             case 19: enemy = 20; break;
-            case 20: pellet = 10; break;
+            case 20: orange = 10; enemy = 15; break;
             case 21: fruits = 20; break;
             case 22: cherry = 5; strawberry = 5; orange = 5; enemy = 15; break;
             case 23: score = 13000; break;
@@ -45,7 +45,7 @@ public class Level {
             case 26: enemy = 25; break;
             case 27: enemy = 26; break;
             case 28: score = 20000; break;
-            case 29: cherry = 20; pellet = 5; break;
+            case 29: cherry = 20; galaxian = 1; break;
             case 30: orange = 20; break;
             case 31: strawberry = 20; break;
             case 32: score = 22000; break;
@@ -65,17 +65,17 @@ public class Level {
             case 46: enemy = 40; break;
             case 47: orange = 40; break;
             case 48: fruits = 45; break;
-            case 49: galaxian = 3; strawberry = 20; pellet = 5; break;
+            case 49: galaxian = 3; strawberry = 20; orange = 25; break;
             case 50: score = 45000; enemy = 25; break;
             case 51: enemy = 50; break;
-            case 52: fruits = 55; pellet = 15; break;
+            case 52: fruits = 55; enemy = 25; galaxian = 1; break;
             case 53: fruits = 60; break;
             case 54: score = 50000; break;
-            case 55: fruits = 40; pellet = 20; galaxian = 4; break;
+            case 55: fruits = 40; enemy = 20; galaxian = 4; break;
             case 56: strawberry = 30; orange = 30; cherry = 30; break;
-            case 57: pellet = 15; galaxian = 4; enemy = 25; break;
-            case 58: enemy = 30; fruits = 40; galaxian = 5; pellet = 7; break;
-            case 59: score = 60000; pellet = 20; break;
+            case 57: cherry = 35; galaxian = 4; enemy = 25; break;
+            case 58: enemy = 30; fruits = 40; galaxian = 5; break;
+            case 59: score = 60000; enemy = 45; fruits = 50; break;
             case 60: score = 100000; galaxian = 8; break;
         }
     }
@@ -104,8 +104,120 @@ public class Level {
                 if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 8:
                 if(DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 9:
+                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+            case 10:
+                if(DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
+            case 11:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 12:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 13:
+                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 14:
+                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 15:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 16:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 17:
+                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.ENEMIES_KILLED >= 10) success = true; break;
+            case 18:
+                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.SCORE >= score) success = true; break;
+            case 19:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 20:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 21:
+                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+            case 22:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.CHERRY_SCORE >= cherry &&
+                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 23:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 24:
+                if(DodgeEm2.CHERRY_SCORE >= cherry &&
+                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 25:
+                if(DodgeEm2.SCORE >= score && DodgeEm2.CHERRY_SCORE >= cherry &&
+                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 26:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 27:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 28:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 29:
+                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 30:
+                if(DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 31:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 32:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 33:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 34:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 35:
+                if(DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 36:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.ENEMIES_KILLED >= enemy &&
+                    DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
+            case 37:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 38:
+                if(DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 39:
+                if(DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 40:
+                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+            case 41:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 42:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.ENEMIES_KILLED >= enemy &&
+                    DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
+            case 43:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 44:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.SCORE >= score) success = true; break;
+            case 45:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 46:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 47:
+                if(DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 48:
+                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+            case 49:
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.GALAXIAN_SCORE >= galaxian
+                        && DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+            case 50:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.SCORE >= score) success = true; break;
+            case 51:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+            case 52:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.FRUIT_SCORE >= fruits &&
+                        DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 53:
+                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+            case 54:
+                if(DodgeEm2.SCORE >= score) success = true; break;
+            case 55:
+                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.ENEMIES_KILLED >= enemy &&
+                        DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 56:
+                if(DodgeEm2.CHERRY_SCORE >= cherry &&
+                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+            case 57:
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.CHERRY_SCORE >= cherry &&
+                        DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+            case 58:
+                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.ENEMIES_KILLED >= enemy &&
+                    DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
             case 59:
-                if(DodgeEm2.SCORE >= score && DodgeEm2.PELLET_SCORE >= pellet) success = true; break;
+                if(DodgeEm2.SCORE >= score && DodgeEm2.FRUIT_SCORE >= fruits &&
+                        DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 60:
                 if(DodgeEm2.SCORE >= score && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
         }

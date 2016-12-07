@@ -2,6 +2,11 @@
 {
 	"class": "Classic Highscores",
 	"name": "Andrien",
-	"score": 8620
+	"score": 11020
+},
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 9760
 }
 ]

@@ -36,7 +36,6 @@ public class Emitter {
         effect.update(Gdx.graphics.getDeltaTime());
 
         if(effect.isComplete())effect.reset(); //repeats constantly
-        System.out.println(position);
     }
 
     public void render(SpriteBatch spriteBatch){

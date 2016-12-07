@@ -15,9 +15,13 @@ public class BlankScreen extends Screen{
     private OrthoCamera camera;
     private Stage stage;
     private int priorScreen;
+    private int[] level;
 
-    public BlankScreen(int cameFrom){
+    public BlankScreen(int cameFrom, int...lvl){
         priorScreen = cameFrom;
+        if(lvl.length > 0){
+            level = lvl;
+        }
     }
     @Override
     public void create() {
@@ -55,7 +59,7 @@ public class BlankScreen extends Screen{
                     new Runnable() {
                         @Override
                         public void run() {
-                            ScreenManager.setScreen(new ArcadeScreen());
+                            ScreenManager.setScreen(new ArcadeScreen(level[0], false));
                         }
                     }));
         }

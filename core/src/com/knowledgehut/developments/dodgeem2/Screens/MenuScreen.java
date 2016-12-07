@@ -134,13 +134,13 @@ class MenuScreen extends Screen{
 
         Label label;
         Label.LabelStyle fontStyle;
-        BitmapFont bmpFont = new BitmapFont(Gdx.files.internal("Fonts/largeFont.fnt"), false);
+        BitmapFont bmpFont = new BitmapFont(Gdx.files.internal("Fonts/impact_gold_medium.fnt"), false);
 
         fontStyle = new Label.LabelStyle();
         fontStyle.font = bmpFont;
         String message = "Choose GAME MODE";
         label = new Label(message, fontStyle);
-        label.setPosition(50, 390);
+        label.setPosition(30, 390);
 
         stage.addActor(img);
         stage.addActor(arcade);

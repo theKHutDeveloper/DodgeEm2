@@ -1,14 +1,6 @@
 package com.knowledgehut.developments.dodgeem2;
 
 
-
-//TODO: Display Arcade high scores
-//TODO: Add Arcade high scores
-//TODO: Screen transitions - started but wait until game completed
-//TODO: Implement levels
-
-
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -21,7 +13,7 @@ import com.knowledgehut.developments.dodgeem2.Screens.ScreenManager;
 
 public class DodgeEm2 extends ApplicationAdapter {
 	public static final int WIDTH = 320, HEIGHT = 480;
-    public static int SCORE, FRUIT_SCORE, TOP_SCORE = 0;
+    public static int SCORE, FRUIT_SCORE;
 
     public static int ENEMIES_KILLED = 0;
     public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN}

@@ -6,19 +6,16 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.SaveData;
-
 
 import java.util.ArrayList;
 
@@ -30,6 +27,8 @@ class HighScoreScreen extends Screen{
 
     private OrthoCamera camera;
     private Stage stage;
+    private EmptyTrashDialog trashDialog;
+    private ImageButton trash;
 
     @Override
     public void create() {
@@ -39,7 +38,7 @@ class HighScoreScreen extends Screen{
 
         Skin skin = new Skin(Gdx.files.internal("Skins/skin/uiskin.json"));
 
-        final EmptyTrashDialog trashDialog = new EmptyTrashDialog("Empty Highscores", skin);
+        trashDialog = new EmptyTrashDialog("Empty Highscores", skin);
 
         Texture texture = new Texture(Gdx.files.internal("Images/bkgnd_small.png"));
         Image background = new Image(texture);
@@ -96,29 +95,12 @@ class HighScoreScreen extends Screen{
         textureRegionDrawable = new TextureRegionDrawable(textureRegion[0][0]);
         textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
 
-        ImageButton trash = new ImageButton(textureRegionDrawable, textureRegionDrawable1);
+        trash = new ImageButton(textureRegionDrawable, textureRegionDrawable1);
         trash.setPosition(230, 70);
         trash.setSize(trash.getWidth(), trash.getHeight());
         trash.setTransform(true);
         trash.setScale(0.7f);
-        trash.addListener(new ClickListener(){
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
-                //get Dialog
-                try {
-                    SaveData saveData = new SaveData();
-                    ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.internal("Data/save.txt"));
-                    //if(highScores != null) {
-                        int list = highScores.size();
 
-                        if (list > 0) {
-                            trashDialog.show(stage);
-                        }
-                   // }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         stage.addActor(background);
         stage.addActor(dialog);
@@ -136,7 +118,7 @@ class HighScoreScreen extends Screen{
             ArrayList<Label> names = new ArrayList<Label>();
 
             SaveData saveData = new SaveData();
-            ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.internal("Data/save.txt"));
+            ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
 
                 int count = 0;
                 for (SaveData.HighScores score : highScores) {
@@ -158,6 +140,27 @@ class HighScoreScreen extends Screen{
 
     @Override
     public void update() {
+        trash.addListener(new ClickListener(){
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+                //get Dialog
+                try {
+                    SaveData saveData = new SaveData();
+                    ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
+                    //if(highScores != null) {
+                    int list = highScores.size();
+
+                    if (list > 0) {
+                        if(!trashDialog.isVisible()){
+                            trashDialog.setVisible(true);
+                        }
+                        trashDialog.show(stage);
+                    }
+                    // }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         stage.act();
         camera.update();
     }
@@ -187,8 +190,6 @@ class HighScoreScreen extends Screen{
 
     }
 
-
-
     public class EmptyTrashDialog extends Dialog {
 
         EmptyTrashDialog(String title, Skin skin) {
@@ -198,7 +199,6 @@ class HighScoreScreen extends Screen{
         @Override
         protected void result(Object object) {
             if(object == "true"){
-                System.out.println("Clear highscore list");
                 SaveData saveData = new SaveData();
                 saveData.clearHighScores(Gdx.files.local("Data/save.txt"));
                 ScreenManager.setScreen(new BlankScreen(3));

@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -76,6 +77,7 @@ class GameScreen extends Screen implements InputProcessor {
     private int platformRandom;
     private boolean pause;
 
+    private Sprite text_complete;
     private long gameOverDelay;
     private int gameEndLoop = 0;
 
@@ -190,8 +192,14 @@ class GameScreen extends Screen implements InputProcessor {
         platformMethod = 0;
 
 
+        Texture texture = new Texture(Gdx.files.internal("Images/complete_text.png"));
+        text_complete = new Sprite(texture);
+        text_complete.setPosition(0,HEIGHT/2);
+        text_complete.setScale(texture.getWidth() * GAME_SCALE_X, texture.getHeight() * GAME_SCALE_X);
+
          if(GAME_MODE){
             levelManager = new Level(playLevel);
+
         }
     }
 
@@ -200,14 +208,22 @@ class GameScreen extends Screen implements InputProcessor {
 
         if(GAME_MODE){
             if(levelManager.Success()){
-                //levelManager.setLevel(++playLevel);
-                if(DodgeEm2.prefs.getInteger("level") <= playLevel) {
-                    DodgeEm2.prefs.putInteger("level", ++playLevel);
+
+                if(gameEndLoop == 0) {
+                    if(musicOn) backgroundMusic.stop();
+                    pause();
+                    if(DodgeEm2.prefs.getInteger("level") <= playLevel && playLevel < 60) {
+                        playLevel += 1;
+                        DodgeEm2.prefs.putInteger("level", playLevel);
+                        DodgeEm2.prefs.flush();
+                    }
+                    gameOverDelay = TimeUtils.millis();
+                    gameEndLoop = 1;
                 }
-                if(musicOn) backgroundMusic.stop();
-                //send to new screen levelFinScreen
-                pause();
-                ScreenManager.setScreen(new FinScreen());
+                if(TimeUtils.timeSinceMillis(gameOverDelay) > 2000){
+
+                    ScreenManager.setScreen(new ArcadeScreen(playLevel, levelManager.Success()));
+                }
             }
         }
 
@@ -234,15 +250,9 @@ class GameScreen extends Screen implements InputProcessor {
                     if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
                         platformMethod = random.nextInt(7) + 1;
                         startPlatformMechanics = false;
-                        System.out.println("platformMethod = " + platformMethod);
-                        System.out.println("platformMoveTime = " + platformMoveTime);
-                        System.out.println("startPlatformMechanics = " + startPlatformMechanics);
                     } else {
                         platformMethod = random.nextInt(4) + 1;
                         startPlatformMechanics = false;
-                        System.out.println("platformMethod = " + platformMethod);
-                        System.out.println("platformMoveTime = " + platformMoveTime);
-                        System.out.println("startPlatformMechanics = " + startPlatformMechanics);
                     }
                     platformRandom = random.nextInt(7000);
                 }
@@ -383,7 +393,8 @@ class GameScreen extends Screen implements InputProcessor {
 
         if(pause && (!GAME_MODE || (GAME_MODE && !levelManager.Success()))){
             if((soundOn) && !gameOver.isPlaying()){
-                ScreenManager.setScreen(new BlankScreen(2));
+                if(!GAME_MODE)ScreenManager.setScreen(new BlankScreen(2));
+                if(GAME_MODE) ScreenManager.setScreen(new BlankScreen(4, playLevel));
             } else if(!soundOn){
                 if(gameEndLoop == 0) {
                     gameOverDelay = TimeUtils.millis();
@@ -391,7 +402,7 @@ class GameScreen extends Screen implements InputProcessor {
                 }
                 if(TimeUtils.timeSinceMillis(gameOverDelay) > 2000){
                     if(!GAME_MODE) ScreenManager.setScreen(new BlankScreen(2));
-                    if(GAME_MODE) ScreenManager.setScreen(new BlankScreen(4));
+                    if(GAME_MODE) ScreenManager.setScreen(new BlankScreen(4, playLevel));
                 }
             }
         }
@@ -432,6 +443,15 @@ class GameScreen extends Screen implements InputProcessor {
 
         if(galaxian != null){
             galaxian.render(spriteBatch);
+        }
+
+        if(GAME_MODE){
+            if(levelManager.Success()){
+                if(!text_complete.isFlipY())text_complete.flip(false,true);
+                spriteBatch.draw(text_complete,0, (HEIGHT/2) * GAME_SCALE_X,
+                        text_complete.getWidth()*GAME_SCALE_X,
+                        text_complete.getHeight()*GAME_SCALE_X);
+            }
         }
 
         spriteBatch.end();

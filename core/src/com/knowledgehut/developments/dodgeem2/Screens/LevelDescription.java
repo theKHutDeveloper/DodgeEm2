@@ -152,27 +152,6 @@ class LevelDescription extends Screen{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*try {
-            ArrayList<Label>info = new ArrayList<Label>();
-            //ArrayList<String> description = new SaveData().retrieveJsonFromFile(Gdx.files.internal("Data/Info.txt"),chosenLevel);
-            new SaveData().readJsonFromFile(Gdx.files.local("Data/save.txt"));
-            *//*for(int i = 0; i < description.size(); i++){
-                System.out.print(description.get(i));
-                //info.add(new Label((CharSequence) description,fontStyle));
-                //info.add(new Label(description, fontStyle));
-
-            }*//*
-
-            *//*for(int i= 0; i< info.size(); i++){
-                info.get(i).setPosition(60 , 290 );
-                stage.addActor(info.get(i));
-            }*//*
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
-        //System.out.print(chosenLevel);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.knowledgehut.developments.dodgeem2.Screens;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
@@ -55,7 +53,6 @@ class FinScreen extends Screen {
 
     @Override
     public void create() {
-        System.out.println("Help");
 
         Image img = new Image(new Texture(Gdx.files.internal("Images/bkgnd_small.png")));
         stage.addActor(img);
@@ -134,7 +131,6 @@ class FinScreen extends Screen {
 
     @Override
     public void resize(int width, int height) {
-
         camera.resize(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
     }
 
@@ -174,7 +170,8 @@ class FinScreen extends Screen {
         protected void result(Object object) {
             if(object == "saved") {
                 try {
-                    saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), textField.getText(),SCORE);
+                    saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), textField.getText(),
+                            SCORE);
                     stage.addAction(Actions.sequence(
                             Actions.fadeOut(1f),
                             Actions.run(
@@ -198,7 +195,6 @@ class FinScreen extends Screen {
                                     }
                                 })));
             }
-            System.out.println(object);
         }
     }
 }
