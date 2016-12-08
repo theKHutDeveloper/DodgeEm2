@@ -15,6 +15,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
+import com.knowledgehut.developments.dodgeem2.SaveData;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.HEIGHT;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.SCORE;
@@ -26,23 +30,37 @@ public class ArcadeScreen extends Screen {
     private Stage stage;
     private int chosenLevel;
     private boolean success;
+    private Skin skin;
+    private ScoreDialog topScore;
+    private SaveData saveData;
+    private boolean showDialog = false;
 
     ArcadeScreen(int chosenLevel, boolean won){
         this.chosenLevel = chosenLevel;
         this.success = won;
+
+        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
+        stage = new Stage(new FitViewport(WIDTH, HEIGHT, camera));
+        skin = new Skin(Gdx.files.internal("Skins/skin/uiskin.json"));
+        topScore = new ScoreDialog("New Highscore!!!", skin);
+
+        Gdx.input.setInputProcessor(stage);
+
+        try {
+            saveData = new SaveData();
+            ArrayList<SaveData.ArcadeScores> arcadeScores =
+                    saveData.returnSortedArcadeJson(Gdx.files.internal("Data/arcade_save.txt"), chosenLevel);
+
+            showDialog = arcadeScores.isEmpty() && SCORE > 0 || SCORE > 0 &&
+                    (SCORE > arcadeScores.get(arcadeScores.size() - 1).getScore() || arcadeScores.size() < 3);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void create() {
-
-        Skin skin = new Skin(Gdx.files.internal("Skins/skin/uiskin.json"));
-
-        /*final SuccessDialog successDialog = new SuccessDialog("Mission Complete", skin);
-        final FailedDialog failedDialog = new FailedDialog("Mission Failed", skin);
-*/
-        camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
-        stage = new Stage(new FitViewport(WIDTH, HEIGHT, camera));
-        Gdx.input.setInputProcessor(stage);
 
         Image img = new Image(new Texture(Gdx.files.internal("Images/bkgnd_small.png")));
         stage.addActor(img);
@@ -109,17 +127,7 @@ public class ArcadeScreen extends Screen {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        if(chosenLevel >= 1 && chosenLevel <= 12){
-                                            ScreenManager.setScreen(new LevelScreen(2));
-                                        } else if(chosenLevel >= 13 && chosenLevel <= 24){
-                                            ScreenManager.setScreen(new LevelScreen2(2));
-                                        } else if(chosenLevel >= 25 && chosenLevel <= 36){
-                                            ScreenManager.setScreen(new LevelScreen3(2));
-                                        } else if(chosenLevel >= 37 && chosenLevel <= 48){
-                                            ScreenManager.setScreen(new LevelScreen4(2));
-                                        } else if(chosenLevel >= 49 && chosenLevel <= 60){
-                                            ScreenManager.setScreen(new LevelScreen5(2));
-                                        }
+                                        action();
 
                                     }
                                 })));
@@ -183,6 +191,7 @@ public class ArcadeScreen extends Screen {
             status = "Good going!";
             text = "You completed this mission";
             stage.addActor(nextButton);
+
         } else {
             status = "Bad luck!";
             text = "You did not complete the mission ";
@@ -201,6 +210,16 @@ public class ArcadeScreen extends Screen {
 
         stage.addActor(menuButton);
         stage.addActor(levelButton);
+
+        if (success & showDialog) {
+            topScore.setWidth(254);
+            topScore.setHeight(122);
+            topScore.setKeepWithinStage(false);
+            topScore.setPosition(33, -200);
+            topScore.addAction(Actions.moveTo(33, 179, 2f));
+            stage.addActor(topScore);
+            System.out.println(SCORE);
+        }
     }
 
     @Override
@@ -251,56 +270,55 @@ public class ArcadeScreen extends Screen {
 
     }
 
-    public class SuccessDialog extends Dialog {
 
-        SuccessDialog(String title, Skin skin) {
+    public class ScoreDialog extends Dialog {
+        TextField textField;
+
+        ScoreDialog(String title, Skin skin) {
             super(title, skin);
+        }
+
+        {
+            textField = new TextField("ABC", skin);
+            textField.setPosition(-5, 40);
+            this.getButtonTable().addActor(textField);
+
+        }
+
+        {
+            button("Save", "saved");
+            button("Cancel", "cancelled");
         }
 
         @Override
         protected void result(Object object) {
-            if(object == "next"){
-                ScreenManager.setScreen(new LevelDescription(chosenLevel));
-            }
-            else if(object == "level") {
-                action();
-            }
-            else if (object == "menu") {
-                ScreenManager.setScreen(new MenuScreen());
-            }
-        }
-
-        {
-            text("Good going! You completed this mission");
-            button("Next Level", "next");
-            button("Levels", "level");
-            button("Menu", "menu");
-        }
-    }
-
-    public class FailedDialog extends Dialog {
-        FailedDialog(String title, Skin skin) {
-            super(title, skin);
-        }
-
-        @Override
-        protected void result(Object object) {
-            if(object == "replay"){
-                ScreenManager.setScreen(new GameScreen(chosenLevel));
-            }
-            else if(object == "level") {
-                action();
-            }
-            else if (object == "menu") {
-                ScreenManager.setScreen(new MenuScreen());
-            }
-        }
-
-        {
-            text("Bad luck! You did not complete the mission");
-            button("Replay", "replay");
-            button("Levels", "level");
-            button("Menu", "menu");
+            if (object == "saved") {
+                try {
+                    saveData.writeArcadeScoreToFile(Gdx.files.local("Data/arcade_save.txt"), chosenLevel, textField.getText(),
+                            SCORE);
+                    /*stage.addAction(Actions.sequence(
+                            Actions.fadeOut(1f),
+                            Actions.run(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ScreenManager.setScreen(new HighScoreScreen());
+                                        }
+                                    })));*/
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } /*else if (object == "cancelled") {
+                stage.addAction(Actions.sequence(
+                        Actions.fadeOut(1f),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new MenuScreen());
+                                    }
+                                })));
+            }*/
         }
     }
 }

@@ -37,11 +37,16 @@ public class SaveData {
             return score;
         }
 
+
+
         @Override
         public int compareTo(ArcadeScores o) {
-            if(this.getLevel() == o.getLevel()) {
-                return this.getScore() - o.getScore();
-            } else return 0;
+            int c = this.getLevel() - o.getLevel();
+
+            if(c == 0){
+                c = this.getScore() - o.getScore();
+            }
+            return c;
         }
     }
 
@@ -141,7 +146,37 @@ public class SaveData {
     public void writeArcadeScoreToFile(FileHandle fileHandle, int level, String name, int score) throws IOException{
         ArrayList<ArcadeScores> arcadeScores;
         arcadeScores = readArcadeScoresFromFile(fileHandle);
+
+        ArrayList<ArcadeScores> newScores = new ArrayList<ArcadeScores>();
+
         arcadeScores.add(new ArcadeScores(level, name, score));
+
+        if(!arcadeScores.isEmpty()){
+            int counter = arcadeScores.size() - 1;
+            for(int i = counter; i >= 0; i--) {
+                if(arcadeScores.get(i).getLevel() == level){
+                    newScores.add(arcadeScores.get(i));
+                    arcadeScores.remove(i);
+                }
+            }
+
+            Collections.sort(newScores, Collections.<ArcadeScores>reverseOrder());
+
+            if(newScores.size() > 3){
+                counter = newScores.size() - 1;
+                for(int i = counter; i > 2; i--){
+                    newScores.remove(i);
+                }
+            }
+
+            for (ArcadeScores aLeaderBoard : newScores) {
+                System.out.print(aLeaderBoard.getLevel() + ", ");
+                System.out.print(aLeaderBoard.getName() + ", ");
+                System.out.print(aLeaderBoard.getScore());
+            }
+        }
+
+        arcadeScores.addAll(newScores);
         Json json = new Json(JsonWriter.OutputType.json);
         json.addClassTag("Arcade Scores", com.knowledgehut.developments.dodgeem2.SaveData.ArcadeScores.class);
         fileHandle.writeString(json.prettyPrint(arcadeScores), false);
@@ -186,11 +221,33 @@ public class SaveData {
 
         if(!leaderBoard.isEmpty()) {
             Collections.sort(leaderBoard);
-
             Collections.sort(leaderBoard, Collections.<HighScores>reverseOrder());
         }
 
         return leaderBoard;
+    }
+
+    public ArrayList<ArcadeScores> returnSortedArcadeJson(FileHandle fileHandle, int currentLevel) throws IOException{
+        ArrayList<ArcadeScores> leaderBoard;
+        ArrayList<ArcadeScores> newList = new ArrayList<ArcadeScores>();
+
+        leaderBoard = readArcadeScoresFromFile(fileHandle);
+
+        if(!leaderBoard.isEmpty()){
+
+            for(ArcadeScores arcadeScores : leaderBoard){
+                if(arcadeScores.getLevel() == currentLevel){
+                    newList.add(arcadeScores);
+                }
+            }
+
+            if(!newList.isEmpty()){
+                Collections.sort(newList);
+                Collections.sort(newList, Collections.<ArcadeScores>reverseOrder());
+
+            }
+        }
+        return newList;
     }
 }
 

@@ -1,0 +1,20 @@
+[
+{
+	"class": "Arcade Scores",
+	"level": 1,
+	"name": "ABC4",
+	"score": 1640
+},
+{
+	"class": "Arcade Scores",
+	"level": 1,
+	"name": "ABC2",
+	"score": 1620
+},
+{
+	"class": "Arcade Scores",
+	"level": 1,
+	"name": "ABC3",
+	"score": 1240
+}
+]
