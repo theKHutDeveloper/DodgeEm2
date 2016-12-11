@@ -177,7 +177,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 2 pellets"
+            "text": "Kill 2 enemies"
         }
     ]
 },
@@ -211,7 +211,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 10 pellets"
+            "text": "Collect 10 oranges"
+        },
+        {
+            "class": "goals",
+            "text": "Kill 15 enemies"
         }
     ]
 },
@@ -337,7 +341,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 5 pellets"
+            "text": "Collect 1 galaxian"
         }
     ]
 },
@@ -522,7 +526,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 45,000 points or more"
+            "text": "Score 40,000 points or more"
         }
     ]
 },
@@ -570,7 +574,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 5 pellets"
+            "text": "Collect 25 oranges"
         }
     ]
 },
@@ -608,7 +612,11 @@
         },
         {
             "class": "goals",
-            "text": "Collect 15 pellets"
+            "text": "Kill 25 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 1 galaxian"
         }
     ]
 },
@@ -646,7 +654,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 20 pellets"
+            "text": "Kill 20 enemies"
         }
     ]
 },
@@ -682,7 +690,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 15 pellets"
+            "text": "Collect 35 cherries"
         }
     ]
 },
@@ -701,10 +709,6 @@
         {
             "class": "goals",
             "text": "Collect 5 galaxians"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 7 pellets"
         }
     ]
 },
@@ -718,7 +722,11 @@
         },
         {
             "class": "goals",
-            "text": "Collect 20 pellets"
+            "text": "Kill 45 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 50 fruits"
         }
     ]
 },

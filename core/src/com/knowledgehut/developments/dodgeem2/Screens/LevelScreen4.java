@@ -56,7 +56,7 @@ class LevelScreen4 extends Screen{
         Texture texture = new Texture(Gdx.files.internal("Images/bkgnd_small.png"));
         Image background = new Image(texture);
 
-        for(int i = 25; i < 37; i++){
+        for(int i = 37; i < 49; i++){
             if (accessLevel < i ) {
                 TextureRegion textureRegion[][] = TextureRegion.split(
                         new Texture(Gdx.files.internal("Images/locked.png")), 50, 51);
@@ -105,7 +105,15 @@ class LevelScreen4 extends Screen{
         previous.setPosition(70 , 110 );
         previous.addListener(new ClickListener(){
             public void touchUp(InputEvent event, float x, float y, int pointer, int button){
-                ScreenManager.setScreen(new LevelScreen3(2));
+                stage.addAction(Actions.sequence(Actions.moveTo(-stage.getWidth(), 0, .5f),
+                        Actions.run(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ScreenManager.setScreen(new LevelScreen3(2));
+                                    }
+                                }
+                        )));
             }
         });
 
@@ -169,12 +177,20 @@ class LevelScreen4 extends Screen{
         for (int i = 0; i < buttons.size(); i++) {
             if (!buttons.get(i).isLocked()) {
                 Button button = buttons.get(i);
-                final int finalI = i + 1;
+                final int finalI = i + 37;
                 button.getImage().addListener(new ChangeListener() {
 
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        ScreenManager.setScreen(new LevelDescription(finalI));
+                        stage.addAction(Actions.sequence(
+                                Actions.fadeOut(1f),
+                                Actions.run(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ScreenManager.setScreen(new LevelDescription(finalI));
+                                            }
+                                        })));
                     }
                 });
             }

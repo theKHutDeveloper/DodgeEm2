@@ -1,12 +1,8 @@
 [
 {
 	"class": "Classic Highscores",
-	"name": "Andrien",
-	"score": 11020
-},
-{
-	"class": "Classic Highscores",
-	"name": "Andrien",
-	"score": 9760
+	"name": "Andrien R",
+	"score": 320,
+	"time": "0 : 19"
 }
 ]

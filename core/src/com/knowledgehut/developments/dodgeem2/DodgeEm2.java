@@ -14,7 +14,7 @@ import com.knowledgehut.developments.dodgeem2.Screens.ScreenManager;
 public class DodgeEm2 extends ApplicationAdapter {
 	public static final int WIDTH = 320, HEIGHT = 480;
     public static int SCORE, FRUIT_SCORE;
-
+    public static String ACHIEVED_TIME;
     public static int ENEMIES_KILLED = 0;
     public enum ItemType {CHERRY, STRAWBERRY, ORANGE, GALAXIAN}
     public static int CHERRY_SCORE, STRAWBERRY_SCORE, ORANGE_SCORE, GALAXIAN_SCORE, PELLET_SCORE = 0;

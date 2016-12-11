@@ -30,10 +30,18 @@ class HighScoreScreen extends Screen{
     private EmptyTrashDialog trashDialog;
     private ImageButton trash;
 
-    @Override
-    public void create() {
+    HighScoreScreen(){
         camera = new OrthoCamera(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
         stage = new Stage(new FitViewport(WIDTH, HEIGHT, camera));
+
+        stage.addAction(Actions.sequence(
+                Actions.alpha(0f),Actions.fadeIn(2f)));
+        stage.act();
+    }
+
+    @Override
+    public void create() {
+
         Gdx.input.setInputProcessor(stage);
 
         Skin skin = new Skin(Gdx.files.internal("Skins/skin/uiskin.json"));
@@ -108,14 +116,26 @@ class HighScoreScreen extends Screen{
         stage.addActor(backButton);
         stage.addActor(trash);
 
+        Label nameLbl = new Label("Name", skin);
+        nameLbl.setPosition(60, 370);
+        Label timeLbl = new Label("Time", skin);
+        timeLbl.setPosition(210, 370);
+        Label scoreLbl = new Label("Score", skin);
+        scoreLbl.setPosition(160, 370);
+        stage.addActor(nameLbl);
+        stage.addActor(scoreLbl);
+        stage.addActor(timeLbl);
+
         try {
             int name_x = 60;
-            int y = 370;
-            int score_x = 210;
+            int y = 350;
+            int score_x = 160;
+            int time_x = 210;
 
 
             ArrayList<Label>scores = new ArrayList<Label>();
             ArrayList<Label> names = new ArrayList<Label>();
+            ArrayList<Label> times = new ArrayList<Label>();
 
             SaveData saveData = new SaveData();
             ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
@@ -124,10 +144,13 @@ class HighScoreScreen extends Screen{
                 for (SaveData.HighScores score : highScores) {
                     names.add(new Label(score.getName(), style));
                     scores.add(new Label(Integer.toString(score.getScore()), style));
+                    times.add(new Label(score.getTime(), style));
                     names.get(count).setPosition(name_x, y);
                     scores.get(count).setPosition(score_x, y);
+                    times.get(count).setPosition(time_x, y);
                     stage.addActor(names.get(count));
                     stage.addActor(scores.get(count));
+                    stage.addActor(times.get(count));
 
                     y = y - 20;
                     count++;
@@ -146,7 +169,7 @@ class HighScoreScreen extends Screen{
                 try {
                     SaveData saveData = new SaveData();
                     ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));
-                    //if(highScores != null) {
+
                     int list = highScores.size();
 
                     if (list > 0) {
@@ -155,7 +178,7 @@ class HighScoreScreen extends Screen{
                         }
                         trashDialog.show(stage);
                     }
-                    // }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

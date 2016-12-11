@@ -107,7 +107,7 @@ class LevelScreen2 extends Screen {
         previous.setPosition(70 , 110 );
         previous.addListener(new ClickListener(){
             public void touchUp(InputEvent event, float x, float y, int pointer, int button){
-                stage.addAction(Actions.sequence(Actions.moveTo(-stage.getWidth(), 0, 1f),
+                stage.addAction(Actions.sequence(Actions.moveTo(-stage.getWidth(), 0, .5f),
                         Actions.run(
                                 new Runnable() {
                                     @Override
@@ -181,12 +181,20 @@ class LevelScreen2 extends Screen {
         for (int i = 0; i < buttons.size(); i++) {
             if (!buttons.get(i).isLocked()) {
                 Button button = buttons.get(i);
-                final int finalI = i + 1;
+                final int finalI = i + 13;
                 button.getImage().addListener(new ChangeListener() {
 
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        ScreenManager.setScreen(new LevelDescription(finalI));
+                        stage.addAction(Actions.sequence(
+                                Actions.fadeOut(1f),
+                                Actions.run(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ScreenManager.setScreen(new LevelDescription(finalI));
+                                            }
+                                        })));
                     }
                 });
             }

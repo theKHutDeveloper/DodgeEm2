@@ -16,15 +16,6 @@ public class Button {
         this.sprite = sp;
         this.locked = locked;
         this.selected = false;
-        /*TextureRegion[] animationFrames = new TextureRegion[3];
-        int index = 0;
-        Texture texture1 = new Texture(Gdx.files.internal("button1.png"));
-        Texture texture2 = new Texture(Gdx.files.internal("button2.png"));
-        Texture texture3 = new Texture(Gdx.files.internal("button3.png"));
-
-        for(int i = 0; i < 3; i++){
-            animationFrames[index++] = TextureRegion.split(texture1, texture1.getWidth(), texture1.getHeight());
-        }*/
     }
 
     public Boolean isLocked(){

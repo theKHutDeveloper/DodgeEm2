@@ -47,7 +47,7 @@ class GameScreen extends Screen implements InputProcessor {
     private int counterToAddNewEnemy, counterToNewFruit, counterToNewPellet;
     private String scoreText, fruitText, enemiesText, timeText;
     private String cherryText, berryText, orangeText, galaxianText;
-    private String bulletText, shieldText;
+    private String bulletText, shieldText, levelText;
     private BitmapFont bmpFont, impactRed, impactSilver;
 
     private boolean playerCanFireBullets;
@@ -100,6 +100,7 @@ class GameScreen extends Screen implements InputProcessor {
 
         SCORE = FRUIT_SCORE = ENEMIES_KILLED =0;
         CHERRY_SCORE = STRAWBERRY_SCORE = ORANGE_SCORE = GALAXIAN_SCORE = PELLET_SCORE = 0;
+        ACHIEVED_TIME = "";
         counterToAddNewEnemy = 0;
         counterToNewFruit = 0;
         counterToNewPellet = 0;
@@ -199,7 +200,7 @@ class GameScreen extends Screen implements InputProcessor {
 
          if(GAME_MODE){
             levelManager = new Level(playLevel);
-
+            levelText = "Level: "+ playLevel;
         }
     }
 
@@ -212,11 +213,7 @@ class GameScreen extends Screen implements InputProcessor {
                 if(gameEndLoop == 0) {
                     if(musicOn) backgroundMusic.stop();
                     pause();
-                    if(DodgeEm2.prefs.getInteger("level") <= playLevel && playLevel < 60) {
-                        playLevel += 1;
-                        DodgeEm2.prefs.putInteger("level", playLevel);
-                        DodgeEm2.prefs.flush();
-                    }
+
                     gameOverDelay = TimeUtils.millis();
                     gameEndLoop = 1;
                 }
@@ -239,90 +236,95 @@ class GameScreen extends Screen implements InputProcessor {
             counterToNewFruit++;
             counterToNewPellet++;
 
-            if (TimeUtils.timeSinceMillis(gameTime) > 30000) {
-                if (platformMoveTime == 0) {
-                    platformMoveTime = TimeUtils.millis();
-                    startPlatformMechanics = true;
-                }
-
-                //create a random generator to choose which platform method to evoke
-                if (startPlatformMechanics) {
-                    if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
-                        platformMethod = random.nextInt(7) + 1;
-                        startPlatformMechanics = false;
-                    } else {
-                        platformMethod = random.nextInt(4) + 1;
-                        startPlatformMechanics = false;
-                    }
-                    platformRandom = random.nextInt(7000);
-                }
-
-                if (TimeUtils.timeSinceMillis(platformMoveTime) > (5000 + platformRandom) && !startPlatformMechanics) {//30000
-                    switch (platformMethod) {
-                        case 1:
-                            platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
-                            break;
-                        case 2:
-                            platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
-                            break;
-                        case 3:
-                            if (soundOn) slideUp.play();
-                            platform.movePlatform(platform.getPosition().y - (20 * GAME_SCALE_Y));
-                            break;
-                        case 4:
-                            platform.shrinkPlatform(40 * GAME_SCALE_X);
-                            break;
-                        case 5:
-                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                            platform.shrinkPlatform(40 * GAME_SCALE_X);
-                            break;
-                        case 6:
-                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                            platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
-                            break;
-                        case 7:
-                            platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                            platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
-                            break;
+            //platform movement only occurs on classic mode or on arcade level 30+
+            if (!GAME_MODE || (GAME_MODE && playLevel >= 30)) {
+                if (TimeUtils.timeSinceMillis(gameTime) > 30000) {
+                    if (platformMoveTime == 0) {
+                        platformMoveTime = TimeUtils.millis();
+                        startPlatformMechanics = true;
                     }
 
-                    platformMoveTime = TimeUtils.millis();
+                    //create a random generator to choose which platform method to evoke
+                    if (startPlatformMechanics) {
+                        if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
+                            platformMethod = random.nextInt(7) + 1;
+                            startPlatformMechanics = false;
+                        } else {
+                            platformMethod = random.nextInt(4) + 1;
+                            startPlatformMechanics = false;
+                        }
+                        platformRandom = random.nextInt(7000);
+                    }
 
-                    switch (platformMethod) {
-                        case 1:
-                            if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
-                        case 2:
-                            if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
-                        case 3:
-                            if (platform.hasPlatformFinishedMovingVertically()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
-                        case 4:
-                            if (platform.hasPlatformFinishedShrinking()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
-                        case 5:
-                            if (platform.hasPlatformFinishedShrinking()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
-                        case 6:
-                        case 7:
-                            if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                startPlatformMechanics = true;
-                            }
-                            break;
+                    if (TimeUtils.timeSinceMillis(platformMoveTime) > (5000 + platformRandom) && !startPlatformMechanics) {//30000
+                        switch (platformMethod) {
+                            case 1:
+                                platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
+                                break;
+                            case 2:
+                                platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
+                                break;
+                            case 3:
+                                if (soundOn) slideUp.play();
+                                platform.movePlatform(platform.getPosition().y - (20 * GAME_SCALE_Y));
+                                break;
+                            case 4:
+                                platform.shrinkPlatform(40 * GAME_SCALE_X);
+                                break;
+                            case 5:
+                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                                platform.shrinkPlatform(40 * GAME_SCALE_X);
+                                break;
+                            case 6:
+                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                                platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
+                                break;
+                            case 7:
+                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
+                                platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
+                                break;
+                        }
+
+                        platformMoveTime = TimeUtils.millis();
+
+                        switch (platformMethod) {
+                            case 1:
+                                if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                            case 2:
+                                if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                            case 3:
+                                if (platform.hasPlatformFinishedMovingVertically()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                            case 4:
+                                if (platform.hasPlatformFinishedShrinking()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                            case 5:
+                                if (platform.hasPlatformFinishedShrinking()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                            case 6:
+                            case 7:
+                                if (platform.hasPlatformFinishedMovingHorizontally()) {
+                                    startPlatformMechanics = true;
+                                }
+                                break;
+                        }
                     }
                 }
+
             }
+
             if (TimeUtils.timeSinceMillis(scoreTime) > 10000) {
                 SCORE += 20;
                 scoreTime = TimeUtils.millis();
@@ -392,6 +394,7 @@ class GameScreen extends Screen implements InputProcessor {
         camera.update();
 
         if(pause && (!GAME_MODE || (GAME_MODE && !levelManager.Success()))){
+            ACHIEVED_TIME = timeText;
             if((soundOn) && !gameOver.isPlaying()){
                 if(!GAME_MODE)ScreenManager.setScreen(new BlankScreen(2));
                 if(GAME_MODE) ScreenManager.setScreen(new BlankScreen(4, playLevel));
@@ -454,10 +457,6 @@ class GameScreen extends Screen implements InputProcessor {
             }
         }
 
-        spriteBatch.end();
-
-
-        spriteBatch.begin();
         impactRed.draw(spriteBatch, bulletText, 160 * GAME_SCALE_X, 250 * GAME_SCALE_X);
         impactSilver.draw(spriteBatch, shieldText, 160 * GAME_SCALE_X, 200 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
@@ -470,6 +469,9 @@ class GameScreen extends Screen implements InputProcessor {
         bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
         bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
 
+        if(GAME_MODE){
+            bmpFont.draw(spriteBatch, levelText, 250 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
+        }
         platform.render(spriteBatch);
         paddle.render(spriteBatch);
         spriteBatch.end();
@@ -889,50 +891,3 @@ class GameScreen extends Screen implements InputProcessor {
 }
 
 
-//import com.knowledgehut.developments.dodgeem2.Level;
-
-// private ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
-// private long asteroidStartTime, asteroidTime;
-/*asteroidTime = TimeUtils.millis();
-asteroidStartTime = 7000 + random.nextInt(7000);*/
-/*if (TimeUtils.timeSinceMillis(asteroidTime) > asteroidStartTime) {
-                int randomX = random.nextInt((WIDTH - 60) + 20) + 20;
-                //float randomSpeed = (float)(2 + random.nextInt(3));
-                asteroids.add(new Asteroid(new Texture(Gdx.files.internal("Images/asteroids.png")),
-                        new Vector2(randomX * GAME_SCALE_X, 0),
-                        new Vector2(0, .5f),
-                        16
-                ));
-                asteroidStartTime = 7000 + random.nextInt(7000);
-                asteroidTime = TimeUtils.millis();
-            }*/
-
-/*for (Asteroid asteroid : asteroids) {
-                asteroid.update();
-            }*/
-/*for (Asteroid asteroid : asteroids) {
-            asteroid.render(spriteBatch);
-        }*/
-
-        /*for (Asteroid asteroid : asteroids) {
-            asteroid.dispose();
-        }*/
-
-        /*for (Asteroid asteroid : asteroids) {
-            asteroid.setPause(true);
-        }*/
-        /*for (Asteroid asteroid : asteroids) {
-            asteroid.setPause(false);
-        }*/
-
-
-
-
-
-//======================================================================================
-
-        /*shapeRenderer.setColor(Color.RED);
-        shapeRenderer.circle(player.getCircle().x, player.getCircle().y, player.getCircle().radius);
-        for (Enemy enemy : enemies) {
-            shapeRenderer.circle(enemy.getCircle().x, enemy.getCircle().y, enemy.getCircle().radius);
-        }*/

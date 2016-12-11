@@ -20,6 +20,7 @@ import com.knowledgehut.developments.dodgeem2.Camera.OrthoCamera;
 import com.knowledgehut.developments.dodgeem2.DodgeEm2;
 import com.knowledgehut.developments.dodgeem2.SaveData;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 class LevelDescription extends Screen{
@@ -45,7 +46,7 @@ class LevelDescription extends Screen{
 
         texture = new Texture(Gdx.files.internal("Images/quest description.png"));
         Image dialog = new Image(texture);
-        dialog.setPosition(30 , 180 );
+        dialog.setPosition(30 , 230 );
 
         //==========================Play Button=============================================
         TextureRegion textureRegion[][] = TextureRegion.split(
@@ -55,7 +56,7 @@ class LevelDescription extends Screen{
         TextureRegionDrawable textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
 
         ImageButton playButton = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
-        playButton.setPosition(165 , 160 );
+        playButton.setPosition(165 , 210 );
         playButton.setSize(playButton.getWidth() , playButton.getHeight() );
         playButton.setTransform(true);
         playButton.setScale(0.7f);
@@ -84,7 +85,7 @@ class LevelDescription extends Screen{
         textureRegionDrawable1 = new TextureRegionDrawable(textureRegion[0][1]);
 
         ImageButton backButton = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
-        backButton.setPosition(50 , 160 );
+        backButton.setPosition(50 , 210 );
 
         backButton.setSize(backButton.getWidth() , backButton.getHeight() );
         backButton.setTransform(true);
@@ -121,9 +122,10 @@ class LevelDescription extends Screen{
         fontStyle = new Label.LabelStyle();
         fontStyle.font = bmpFont;
 
+
         String message = "Level " + chosenLevel;
         label = new Label(message, fontStyle);
-        label.setPosition(150 , 335 );
+        label.setPosition(150 , 385 );
 
         stage.addActor(background);
         stage.addActor(dialog);
@@ -133,7 +135,7 @@ class LevelDescription extends Screen{
 
         try {
             int x = 90;
-            int y = 290;
+            int y = 340;
 
             ArrayList<Label>info = new ArrayList<Label>();
             SaveData saveData = new SaveData();
@@ -150,6 +152,37 @@ class LevelDescription extends Screen{
                 stage.addActor(marker_on);
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            int x1 = 60;
+            int x = 105;
+            int y1 = 140;
+            int y = 152;
+
+            ArrayList<Label> scores = new ArrayList<Label>();
+
+            SaveData saveData = new SaveData();
+            ArrayList<SaveData.ArcadeScores> arcadeScores =
+                    saveData.findArcadeScoresFromFile(Gdx.files.local("Data/arcade_save.txt"), chosenLevel);
+
+            if(!arcadeScores.isEmpty()){
+                for(int i = 0; i < arcadeScores.size(); i++){
+                    texture = new Texture(Gdx.files.internal("Images/score_holder.png"));
+                    Image temp = new Image(texture);
+                    temp.setPosition(x1 , y1 );
+                    stage.addActor(temp);
+
+                    scores.add(new Label(arcadeScores.get(i).getName() + " - " + arcadeScores.get(i).getScore(), fontStyle));
+                    scores.get(i).setPosition(x, y);
+                    stage.addActor(scores.get(i));
+                    y = y - 40;
+                    y1 = y1 - 40;
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -34,10 +34,9 @@ class MenuScreen extends Screen{
          stage = new Stage(new FitViewport(WIDTH,HEIGHT, camera));
          stage.addAction(Actions.visible(false));
          stage.act();
-         //stage.addAction(Actions.moveTo(stage.getWidth()*2, 0));
-
-
     }
+
+
     @Override
     public void create() {
         Gdx.input.setInputProcessor(stage);
@@ -90,8 +89,8 @@ class MenuScreen extends Screen{
         ImageButton highscore = new ImageButton(textureRegionDrawable,textureRegionDrawable1);
         highscore.addListener(new ClickListener(){
             public void touchUp(InputEvent event, float x, float y, int pointer, int button){
-                stage.addAction(Actions.sequence(Actions.parallel(Actions.fadeOut(.5f),
-                        Actions.moveBy(-stage.getWidth(), 0, .5f)),
+                stage.addAction(Actions.sequence(
+                        Actions.fadeOut(1f),
                         Actions.run(
                                 new Runnable() {
                                     @Override

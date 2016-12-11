@@ -170,8 +170,15 @@ class FinScreen extends Screen {
         protected void result(Object object) {
             if(object == "saved") {
                 try {
-                    saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), textField.getText(),
-                            SCORE);
+                    if(textField.getText().length() > 10){
+                        String shortenText = textField.getText().substring(0, 9);
+                        saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), shortenText,
+                                SCORE, ACHIEVED_TIME);
+                    } else {
+                        saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), textField.getText(),
+                                SCORE, ACHIEVED_TIME);
+                    }
+
                     stage.addAction(Actions.sequence(
                             Actions.fadeOut(1f),
                             Actions.run(

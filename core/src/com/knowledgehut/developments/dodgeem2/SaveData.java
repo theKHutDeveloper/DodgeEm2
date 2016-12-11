@@ -1,6 +1,5 @@
 package com.knowledgehut.developments.dodgeem2;
 
-
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
@@ -17,7 +16,6 @@ public class SaveData {
         int level;
         String name;
         int score;
-
 
         ArcadeScores(int level, String name, int score){
             this.level = level;
@@ -54,10 +52,12 @@ public class SaveData {
     public class HighScores implements Comparable<HighScores>{
         String name;
         int score;
+        String time;
 
-        HighScores(String name, int score){
+        HighScores(String name, int score, String time){
             this.name = name;
             this.score = score;
+            this.time = time;
         }
 
         public String getName(){
@@ -67,6 +67,8 @@ public class SaveData {
         public int getScore(){
             return score;
         }
+
+        public String getTime() {return time;}
 
         @Override
         public int compareTo(HighScores other_item) {
@@ -98,18 +100,22 @@ public class SaveData {
 
     public GameText getGameData(FileHandle fileHandle, int level) throws Exception{
         JsonReader jsonReader = new JsonReader();
-        JsonValue jsonValue = jsonReader.parse(fileHandle);
-
-        int my_level = 0;
         ArrayList<String> my_data = new ArrayList<String>();
 
-        for(JsonValue data: jsonValue.iterator()){
-            if(data.getInt("level") == level){
-                my_level = data.getInt("level");
-                for(JsonValue text: data.get("info").iterator()){
-                    my_data.add(text.getString("text"));
+        if(fileHandle.exists()) {
+            JsonValue jsonValue = jsonReader.parse(fileHandle);
+
+            int my_level;
+
+
+            for (JsonValue data : jsonValue.iterator()) {
+                if (data.getInt("level") == level) {
+                    my_level = data.getInt("level");
+                    for (JsonValue text : data.get("info").iterator()) {
+                        my_data.add(text.getString("text"));
+                    }
+                    return new GameText(my_level, my_data);
                 }
-                return new GameText(my_level, my_data);
             }
         }
         return null;
@@ -118,11 +124,14 @@ public class SaveData {
     private ArrayList<HighScores> readJsonFromFile(FileHandle fileHandle) throws IOException {
         ArrayList<HighScores> leaderBoard = new ArrayList<HighScores>();
         JsonReader jsonReader = new JsonReader();
-        JsonValue jsonValue = jsonReader.parse(fileHandle);
 
-        if (jsonValue != null) {
-            for (JsonValue scoreboard : jsonValue.iterator()) {
-                leaderBoard.add(new HighScores(scoreboard.getString("name"), scoreboard.getInt("score")));
+        if(fileHandle.exists()) {
+            JsonValue jsonValue = jsonReader.parse(fileHandle);
+            if (jsonValue != null) {
+                for (JsonValue scoreboard : jsonValue.iterator()) {
+                    leaderBoard.add(new HighScores(scoreboard.getString("name"), scoreboard.getInt("score"),
+                            scoreboard.getString("time")));
+                }
             }
         }
         return leaderBoard;
@@ -132,29 +141,55 @@ public class SaveData {
     private ArrayList<ArcadeScores> readArcadeScoresFromFile(FileHandle fileHandle) throws IOException{
         ArrayList<ArcadeScores> arcadeScores = new ArrayList<ArcadeScores>();
         JsonReader jsonReader = new JsonReader();
-        JsonValue jsonValue = jsonReader.parse(fileHandle);
 
-        if(jsonValue != null){
-            for(JsonValue scoreboard:jsonValue.iterator()){
-                arcadeScores.add(new ArcadeScores(scoreboard.getInt("level"), scoreboard.getString("name"),
-                        scoreboard.getInt("score")));
+        if(fileHandle.exists()) {
+            JsonValue jsonValue = jsonReader.parse(fileHandle);
+
+            if (jsonValue != null) {
+                for (JsonValue scoreboard : jsonValue.iterator()) {
+                    arcadeScores.add(new ArcadeScores(scoreboard.getInt("level"), scoreboard.getString("name"),
+                            scoreboard.getInt("score")));
+                }
             }
         }
         return arcadeScores;
     }
 
-    public void writeArcadeScoreToFile(FileHandle fileHandle, int level, String name, int score) throws IOException{
-        ArrayList<ArcadeScores> arcadeScores;
+
+    public ArrayList<ArcadeScores> findArcadeScoresFromFile(FileHandle fileHandle, int level) throws IOException{
+        ArrayList<ArcadeScores> arcadeScores = new ArrayList<ArcadeScores>();
+        JsonReader jsonReader = new JsonReader();
+
+        if(fileHandle.exists()) {
+            JsonValue jsonValue = jsonReader.parse(fileHandle);
+
+            if (jsonValue != null) {
+                for (JsonValue scoreboard : jsonValue.iterator()) {
+                    if (scoreboard.getInt("level") == level) {
+                        arcadeScores.add(new ArcadeScores(scoreboard.getInt("level"), scoreboard.getString("name"),
+                                scoreboard.getInt("score")));
+                    }
+                }
+            }
+        }
+        return arcadeScores;
+    }
+
+    public void writeArcadeScoreToFile(FileHandle fileHandle, int level, String name, int score)
+            throws IOException{
+        ArrayList<ArcadeScores> arcadeScores;// = new ArrayList<ArcadeScores>();
+
+
         arcadeScores = readArcadeScoresFromFile(fileHandle);
 
         ArrayList<ArcadeScores> newScores = new ArrayList<ArcadeScores>();
 
         arcadeScores.add(new ArcadeScores(level, name, score));
 
-        if(!arcadeScores.isEmpty()){
+        if (!arcadeScores.isEmpty()) {
             int counter = arcadeScores.size() - 1;
-            for(int i = counter; i >= 0; i--) {
-                if(arcadeScores.get(i).getLevel() == level){
+            for (int i = counter; i >= 0; i--) {
+                if (arcadeScores.get(i).getLevel() == level) {
                     newScores.add(arcadeScores.get(i));
                     arcadeScores.remove(i);
                 }
@@ -162,9 +197,9 @@ public class SaveData {
 
             Collections.sort(newScores, Collections.<ArcadeScores>reverseOrder());
 
-            if(newScores.size() > 3){
+            if (newScores.size() > 3) {
                 counter = newScores.size() - 1;
-                for(int i = counter; i > 2; i--){
+                for (int i = counter; i > 2; i--) {
                     newScores.remove(i);
                 }
             }
@@ -182,18 +217,18 @@ public class SaveData {
         fileHandle.writeString(json.prettyPrint(arcadeScores), false);
     }
 
-    public void writeJsonToFile(FileHandle fileHandle, String playerName, int playerScore)
+    public void writeJsonToFile(FileHandle fileHandle, String playerName, int playerScore, String playerTime)
             throws IOException{
 
         ArrayList<HighScores> leaderBoard;
         leaderBoard = readJsonFromFile(fileHandle);
-        leaderBoard.add(new HighScores(playerName, playerScore));
+        leaderBoard.add(new HighScores(playerName, playerScore, playerTime));
         Collections.sort(leaderBoard, Collections.<HighScores>reverseOrder());
 
         //only store the top 10 results
-        if(leaderBoard.size() > 10){
-            int counter = leaderBoard.size()-1;
-            for(int i = counter; i > 9; i--) {
+        if (leaderBoard.size() > 10) {
+            int counter = leaderBoard.size() - 1;
+            for (int i = counter; i > 9; i--) {
                 leaderBoard.remove(i);
             }
         }
@@ -201,12 +236,12 @@ public class SaveData {
         for (HighScores aLeaderBoard : leaderBoard) {
             System.out.print(aLeaderBoard.getName() + ", ");
             System.out.print(aLeaderBoard.getScore());
+            System.out.print(aLeaderBoard.getTime());
         }
 
         Json json = new Json(JsonWriter.OutputType.json);
         json.addClassTag("Classic Highscores", com.knowledgehut.developments.dodgeem2.SaveData.HighScores.class);
         fileHandle.writeString(json.prettyPrint(leaderBoard), false);
-
     }
 
 
@@ -233,50 +268,21 @@ public class SaveData {
 
         leaderBoard = readArcadeScoresFromFile(fileHandle);
 
-        if(!leaderBoard.isEmpty()){
+        if (!leaderBoard.isEmpty()) {
 
-            for(ArcadeScores arcadeScores : leaderBoard){
-                if(arcadeScores.getLevel() == currentLevel){
+            for (ArcadeScores arcadeScores : leaderBoard) {
+                if (arcadeScores.getLevel() == currentLevel) {
                     newList.add(arcadeScores);
                 }
             }
 
-            if(!newList.isEmpty()){
+            if (!newList.isEmpty()) {
                 Collections.sort(newList);
                 Collections.sort(newList, Collections.<ArcadeScores>reverseOrder());
 
             }
         }
+
         return newList;
     }
 }
-
-/*public class Info{
-        int level;
-        String text;
-
-        Info(int level, String text){
-            this.level = level;
-            this.text = text;
-        }
-
-        public int getLevel(){ return level;}
-
-        public String getText(){ return text;}
-    }*/
-
-
-  /*public String retrieveJsonFromFile(FileHandle fileHandle, int level)throws Exception{
-        String data = null;
-
-        JsonReader jsonReader = new JsonReader();
-        JsonValue jsonValue = jsonReader.parse(fileHandle);
-
-        for(JsonValue levelText: jsonValue.iterator()){
-            if(levelText.getInt("level") == level){
-                data = levelText.getString("text");
-                break;
-            }
-        }
-        return data;
-    }*/

@@ -28,7 +28,7 @@ import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 public class ArcadeScreen extends Screen {
     private OrthoCamera camera;
     private Stage stage;
-    private int chosenLevel;
+    private int chosenLevel, newLevel;
     private boolean success;
     private Skin skin;
     private ScoreDialog topScore;
@@ -49,7 +49,7 @@ public class ArcadeScreen extends Screen {
         try {
             saveData = new SaveData();
             ArrayList<SaveData.ArcadeScores> arcadeScores =
-                    saveData.returnSortedArcadeJson(Gdx.files.internal("Data/arcade_save.txt"), chosenLevel);
+                    saveData.returnSortedArcadeJson(Gdx.files.local("Data/arcade_save.txt"), chosenLevel);
 
             showDialog = arcadeScores.isEmpty() && SCORE > 0 || SCORE > 0 &&
                     (SCORE > arcadeScores.get(arcadeScores.size() - 1).getScore() || arcadeScores.size() < 3);
@@ -127,8 +127,13 @@ public class ArcadeScreen extends Screen {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        action();
-
+                                        if(!success) action(chosenLevel);
+                                        if(success && newLevel != -1){
+                                            action(newLevel);
+                                        }
+                                        if(success && newLevel == -1){
+                                            action(chosenLevel);
+                                        }
                                     }
                                 })));
             }
@@ -154,7 +159,7 @@ public class ArcadeScreen extends Screen {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        ScreenManager.setScreen(new LevelDescription(chosenLevel));
+                                        ScreenManager.setScreen(new LevelDescription(newLevel));
 
                                     }
                                 })));
@@ -190,7 +195,20 @@ public class ArcadeScreen extends Screen {
         if(success){
             status = "Good going!";
             text = "You completed this mission";
-            stage.addActor(nextButton);
+
+            if(DodgeEm2.prefs.getInteger("level") <= chosenLevel && chosenLevel < 60) {
+                newLevel = chosenLevel + 1;
+                DodgeEm2.prefs.putInteger("level", newLevel);
+                DodgeEm2.prefs.flush();
+                stage.addActor(nextButton);
+            } else if(chosenLevel == 60){
+                stage.addActor(replayButton);
+                newLevel = -1;
+            } else {
+                stage.addActor(nextButton);
+                newLevel = chosenLevel + 1;
+            }
+
 
         } else {
             status = "Bad luck!";
@@ -238,17 +256,17 @@ public class ArcadeScreen extends Screen {
         camera.resize(DodgeEm2.WIDTH, DodgeEm2.HEIGHT);
     }
 
-    private void action(){
+    private void action(int level){
 
-        if(chosenLevel >= 1 && chosenLevel <= 12){
+        if(level >= 1 && level <= 12){
             ScreenManager.setScreen(new LevelScreen(2));
-        } else if (chosenLevel >= 13 && chosenLevel <= 24) {
+        } else if (level >= 13 && level <= 24) {
             ScreenManager.setScreen(new LevelScreen2(2));
-        } else if (chosenLevel >= 25 && chosenLevel <= 36) {
+        } else if (level >= 25 && level <= 36) {
             ScreenManager.setScreen(new LevelScreen3(2));
-        } else if (chosenLevel >= 37 && chosenLevel <= 48) {
+        } else if (level >= 37 && level <= 48) {
             ScreenManager.setScreen(new LevelScreen4(2));
-        } else if (chosenLevel >= 49 && chosenLevel <= 60) {
+        } else if (level >= 49 && level <= 60) {
             ScreenManager.setScreen(new LevelScreen5(2));
         }
     }
@@ -294,31 +312,13 @@ public class ArcadeScreen extends Screen {
         protected void result(Object object) {
             if (object == "saved") {
                 try {
-                    saveData.writeArcadeScoreToFile(Gdx.files.local("Data/arcade_save.txt"), chosenLevel, textField.getText(),
-                            SCORE);
-                    /*stage.addAction(Actions.sequence(
-                            Actions.fadeOut(1f),
-                            Actions.run(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            ScreenManager.setScreen(new HighScoreScreen());
-                                        }
-                                    })));*/
+                    saveData.writeArcadeScoreToFile(Gdx.files.local("Data/arcade_save.txt"),
+                            chosenLevel, textField.getText(), SCORE);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } /*else if (object == "cancelled") {
-                stage.addAction(Actions.sequence(
-                        Actions.fadeOut(1f),
-                        Actions.run(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ScreenManager.setScreen(new MenuScreen());
-                                    }
-                                })));
-            }*/
+            }
         }
     }
 }

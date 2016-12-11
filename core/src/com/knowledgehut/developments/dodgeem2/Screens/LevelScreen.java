@@ -174,7 +174,15 @@ class LevelScreen extends Screen{
 
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        ScreenManager.setScreen(new LevelDescription(finalI));
+                        stage.addAction(Actions.sequence(
+                                Actions.fadeOut(1f),
+                                Actions.run(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ScreenManager.setScreen(new LevelDescription(finalI));
+                                            }
+                                        })));
                     }
                 });
             }
