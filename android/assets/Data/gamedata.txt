@@ -15,7 +15,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 5 oranges"
+            "text": "Collect 2 oranges"
         }
     ]
 },
@@ -25,7 +25,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 3000 points or more"
+            "text": "Score 3,000 points or more"
         }
     ]
 },
@@ -35,7 +35,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 6 cherries"
+            "text": "Collect 3 cherries"
         }
     ]
 },
@@ -45,7 +45,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 10 fruits"
+            "text": "Collect 6 fruits"
         }
     ]
 },
@@ -55,7 +55,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 5000 points or more"
+            "text": "Score 5,000 points or more"
         }
     ]
 },
@@ -65,7 +65,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 4 enemies"
+            "text": "Kill 1 enemy"
         }
     ]
 },
@@ -75,7 +75,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 10 strawberries"
+            "text": "Collect 4 strawberries"
         }
     ]
 },
@@ -85,7 +85,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 15 fruits"
+            "text": "Collect 8 fruits"
         }
     ]
 },
@@ -95,7 +95,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 10 cherries"
+            "text": "Collect 4 cherries"
         }
     ]
 },
@@ -105,7 +105,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 6000 points or more"
+            "text": "Score 6,000 points or more"
         }
     ]
 },
@@ -115,7 +115,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 10 enemies"
+            "text": "Kill 4 enemies"
         }
     ]
 },
@@ -129,7 +129,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 15 oranges"
+            "text": "Collect 3 oranges"
         }
     ]
 },
@@ -139,7 +139,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 15 cherries"
+            "text": "Collect 4 cherries"
         },
         {
             "class": "goals",
@@ -153,7 +153,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 7500 points or more"
+            "text": "Score 7,500 points or more"
         }
     ]
 },
@@ -163,7 +163,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 15 enemies"
+            "text": "Kill 6 enemies"
         }
     ]
 },
@@ -173,11 +173,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 15 fruits"
+            "text": "Collect 7 fruits"
         },
         {
             "class": "goals",
-            "text": "Kill 2 enemies"
+            "text": "Kill 5 enemies"
         }
     ]
 },
@@ -201,7 +201,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 20 enemies"
+            "text": "Kill 10 enemies"
         }
     ]
 },
@@ -211,11 +211,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 10 oranges"
+            "text": "Collect 6 oranges"
         },
         {
             "class": "goals",
-            "text": "Kill 15 enemies"
+            "text": "Kill 8 enemies"
         }
     ]
 },
@@ -225,7 +225,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 20 fruits"
+            "text": "Collect 11 fruits"
         }
     ]
 },
@@ -235,19 +235,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 15 enemies"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 5 cherries"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 5 strawberries"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 5 oranges"
+            "text": "Score 13,000 points or more"
         }
     ]
 },
@@ -257,7 +245,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 13,000 points or more"
+            "text": "Collect 6 cherries"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 8 strawberries"
         }
     ]
 },
@@ -267,15 +259,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 15 cherries"
+            "text": "Collect 8 cherries"
         },
         {
             "class": "goals",
-            "text": "Collect 15 strawberries"
+            "text": "Collect 8 strawberries"
         },
         {
             "class": "goals",
-            "text": "Collect 15 oranges"
+            "text": "Collect 8 oranges"
         }
     ]
 },
@@ -285,19 +277,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 13,000 points or more"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 10 cherries"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 10 strawberries"
-        },
-        {
-            "class": "goals",
-            "text": "Collect 10 oranges"
+            "text": "Score 18,000 points or more"
         }
     ]
 },
@@ -307,7 +287,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 25 enemies"
+            "text": "Kill 12 enemies"
+        },
+        {
+            "class": "goals",
+            "text": "Collect 2 cherries"
         }
     ]
 },
@@ -317,7 +301,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 26 enemies"
+            "text": "Kill 14 enemies"
         }
     ]
 },
@@ -337,7 +321,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 20 cherries"
+            "text": "Collect 10 strawberries"
         },
         {
             "class": "goals",
@@ -351,7 +335,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 20 oranges"
+            "text": "Collect 9 oranges"
         }
     ]
 },
@@ -361,7 +345,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 20 strawberries"
+            "text": "Collect 15 strawberries"
         }
     ]
 },
@@ -391,7 +375,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 30 enemies"
+            "text": "Kill 18 enemies"
         }
     ]
 },
@@ -464,7 +448,11 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 30 fruits"
+            "text": "Collect 20 fruits"
+        },
+        {
+             "class": "goals",
+             "text": "Collect 2 galaxians"
         }
     ]
 },
@@ -474,7 +462,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 35 enemies"
+            "text": "Kill 23 enemies"
         }
     ]
 },
@@ -484,15 +472,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 20 cherries"
+            "text": "Collect 14 cherries"
         },
         {
             "class": "goals",
-            "text": "Collect 20 strawberries"
+            "text": "Collect 10 strawberries"
         },
         {
             "class": "goals",
-            "text": "Kill 20 enemies"
+            "text": "Collect 6 oranges"
         }
     ]
 },
@@ -502,7 +490,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 30 strawberries"
+            "text": "Collect 16 strawberries"
         }
     ]
 },
@@ -536,7 +524,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 40 enemies"
+            "text": "Kill 28 enemies"
         }
     ]
 },
@@ -546,7 +534,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 40 oranges"
+            "text": "Collect 15 oranges"
         }
     ]
 },
@@ -556,7 +544,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 45 fruits"
+            "text": "Collect 26 fruits"
         }
     ]
 },
@@ -566,15 +554,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 3 galaxians"
+            "text": "Collect 4 galaxians"
         },
         {
             "class": "goals",
-            "text": "Collect 20 strawberries"
+            "text": "Collect 15 strawberries"
         },
         {
             "class": "goals",
-            "text": "Collect 25 oranges"
+            "text": "Collect 18 cherries"
         }
     ]
 },
@@ -598,7 +586,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 50 enemies"
+            "text": "Kill 30 enemies"
         }
     ]
 },
@@ -608,7 +596,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 55 fruits"
+            "text": "Collect 30 fruits"
         },
         {
             "class": "goals",
@@ -616,7 +604,7 @@
         },
         {
             "class": "goals",
-            "text": "Collect 1 galaxian"
+            "text": "Collect 3 galaxian"
         }
     ]
 },
@@ -626,7 +614,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 60 fruits"
+            "text": "Collect 40 fruits"
         }
     ]
 },
@@ -636,7 +624,7 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 50,000 points or more"
+            "text": "Score 65,000 points or more"
         }
     ]
 },
@@ -650,11 +638,11 @@
         },
         {
             "class": "goals",
-            "text": "Collect 40 fruits"
+            "text": "Collect 50 fruits"
         },
         {
             "class": "goals",
-            "text": "Kill 20 enemies"
+            "text": "Kill 30 enemies"
         }
     ]
 },
@@ -664,15 +652,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Collect 30 strawberries"
+            "text": "Collect 20 strawberries"
         },
         {
             "class": "goals",
-            "text": "Collect 30 oranges"
+            "text": "Kill 40 enemies"
         },
         {
             "class": "goals",
-            "text": "Collect 30 cherries"
+            "text": "Collect 24 cherries"
         }
     ]
 },
@@ -700,15 +688,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Kill 30 enemies"
+            "text": "Kill 60 enemies"
         },
         {
             "class": "goals",
-            "text": "Collect 40 fruits"
+            "text": "Collect 60 fruits"
         },
         {
             "class": "goals",
-            "text": "Collect 5 galaxians"
+            "text": "Collect 6 galaxians"
         }
     ]
 },
@@ -718,15 +706,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 60,000 points or more"
+            "text": "Score 100,000 points or more"
         },
         {
             "class": "goals",
-            "text": "Kill 45 enemies"
+            "text": "Kill 70 enemies"
         },
         {
             "class": "goals",
-            "text": "Collect 50 fruits"
+            "text": "Collect 55 fruits"
         }
     ]
 },
@@ -736,11 +724,15 @@
 	"info": [
         {
             "class": "goals",
-            "text": "Score 100,000 points or more"
+            "text": "Score 250,000 points or more"
         },
         {
             "class": "goals",
-            "text": "Collect 8 galaxians"
+            "text": "Collect 10 galaxians"
+        },
+        {
+             "class": "goals",
+             "text": "Collect 50 oranges"
         }
     ]
 },

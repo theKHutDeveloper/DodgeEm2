@@ -156,7 +156,7 @@ class FinScreen extends Screen {
         }
 
         {
-            textField = new TextField("ABC", skin);
+            textField = new TextField("", skin);
             textField.setPosition(-5,40);
             this.getButtonTable().addActor(textField);
 
@@ -170,8 +170,8 @@ class FinScreen extends Screen {
         protected void result(Object object) {
             if(object == "saved") {
                 try {
-                    if(textField.getText().length() > 10){
-                        String shortenText = textField.getText().substring(0, 9);
+                    if(textField.getText().length() > 7){
+                        String shortenText = textField.getText().substring(0, 6);
                         saveData.writeJsonToFile(Gdx.files.local("Data/save.txt"), shortenText,
                                 SCORE, ACHIEVED_TIME);
                     } else {

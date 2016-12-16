@@ -297,7 +297,7 @@ public class ArcadeScreen extends Screen {
         }
 
         {
-            textField = new TextField("ABC", skin);
+            textField = new TextField("", skin);
             textField.setPosition(-5, 40);
             this.getButtonTable().addActor(textField);
 

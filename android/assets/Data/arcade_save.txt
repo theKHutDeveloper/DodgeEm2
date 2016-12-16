@@ -34,5 +34,23 @@
 	"level": 1,
 	"name": "ABC2",
 	"score": 1620
+},
+{
+	"class": "Arcade Scores",
+	"level": 6,
+	"name": "ABC",
+	"score": 5340
+},
+{
+	"class": "Arcade Scores",
+	"level": 7,
+	"name": "ABC",
+	"score": 10980
+},
+{
+	"class": "Arcade Scores",
+	"level": 2,
+	"name": "ABC",
+	"score": 7000
 }
 ]

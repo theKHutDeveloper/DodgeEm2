@@ -117,20 +117,20 @@ class HighScoreScreen extends Screen{
         stage.addActor(trash);
 
         Label nameLbl = new Label("Name", skin);
-        nameLbl.setPosition(60, 370);
+        nameLbl.setPosition(50, 370);
         Label timeLbl = new Label("Time", skin);
-        timeLbl.setPosition(210, 370);
+        timeLbl.setPosition(235, 370);
         Label scoreLbl = new Label("Score", skin);
-        scoreLbl.setPosition(160, 370);
+        scoreLbl.setPosition(145, 370);
         stage.addActor(nameLbl);
         stage.addActor(scoreLbl);
         stage.addActor(timeLbl);
 
         try {
-            int name_x = 60;
+            int name_x = 50;
             int y = 350;
-            int score_x = 160;
-            int time_x = 210;
+            int score_x = 145;
+            int time_x = 235;
 
 
             ArrayList<Label>scores = new ArrayList<Label>();
@@ -143,7 +143,7 @@ class HighScoreScreen extends Screen{
                 int count = 0;
                 for (SaveData.HighScores score : highScores) {
                     names.add(new Label(score.getName(), style));
-                    scores.add(new Label(Integer.toString(score.getScore()), style));
+                    scores.add(new Label(Long.toString(score.getScore()), style));
                     times.add(new Label(score.getTime(), style));
                     names.get(count).setPosition(name_x, y);
                     scores.get(count).setPosition(score_x, y);

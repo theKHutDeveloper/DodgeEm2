@@ -15,9 +15,9 @@ public class SaveData {
     public class ArcadeScores implements Comparable<ArcadeScores>{
         int level;
         String name;
-        int score;
+        long score;
 
-        ArcadeScores(int level, String name, int score){
+        ArcadeScores(int level, String name, long score){
             this.level = level;
             this.name = name;
             this.score = score;
@@ -31,7 +31,7 @@ public class SaveData {
             return name;
         }
 
-        public int getScore(){
+        public long getScore(){
             return score;
         }
 
@@ -42,7 +42,7 @@ public class SaveData {
             int c = this.getLevel() - o.getLevel();
 
             if(c == 0){
-                c = this.getScore() - o.getScore();
+                c = (int)(this.getScore() - o.getScore());
             }
             return c;
         }
@@ -51,10 +51,10 @@ public class SaveData {
 
     public class HighScores implements Comparable<HighScores>{
         String name;
-        int score;
+        long score;
         String time;
 
-        HighScores(String name, int score, String time){
+        HighScores(String name, long score, String time){
             this.name = name;
             this.score = score;
             this.time = time;
@@ -64,7 +64,7 @@ public class SaveData {
             return name;
         }
 
-        public int getScore(){
+        public long getScore(){
             return score;
         }
 
@@ -72,10 +72,9 @@ public class SaveData {
 
         @Override
         public int compareTo(HighScores other_item) {
-            return this.getScore() - other_item.getScore();
+            return (int)(this.getScore() - other_item.getScore());
         }
     }
-
 
 
     public class GameText{
@@ -129,7 +128,7 @@ public class SaveData {
             JsonValue jsonValue = jsonReader.parse(fileHandle);
             if (jsonValue != null) {
                 for (JsonValue scoreboard : jsonValue.iterator()) {
-                    leaderBoard.add(new HighScores(scoreboard.getString("name"), scoreboard.getInt("score"),
+                    leaderBoard.add(new HighScores(scoreboard.getString("name"), scoreboard.getLong("score"),
                             scoreboard.getString("time")));
                 }
             }
@@ -148,7 +147,7 @@ public class SaveData {
             if (jsonValue != null) {
                 for (JsonValue scoreboard : jsonValue.iterator()) {
                     arcadeScores.add(new ArcadeScores(scoreboard.getInt("level"), scoreboard.getString("name"),
-                            scoreboard.getInt("score")));
+                            scoreboard.getLong("score")));
                 }
             }
         }
@@ -167,7 +166,7 @@ public class SaveData {
                 for (JsonValue scoreboard : jsonValue.iterator()) {
                     if (scoreboard.getInt("level") == level) {
                         arcadeScores.add(new ArcadeScores(scoreboard.getInt("level"), scoreboard.getString("name"),
-                                scoreboard.getInt("score")));
+                                scoreboard.getLong("score")));
                     }
                 }
             }
@@ -175,7 +174,7 @@ public class SaveData {
         return arcadeScores;
     }
 
-    public void writeArcadeScoreToFile(FileHandle fileHandle, int level, String name, int score)
+    public void writeArcadeScoreToFile(FileHandle fileHandle, int level, String name, long score)
             throws IOException{
         ArrayList<ArcadeScores> arcadeScores;// = new ArrayList<ArcadeScores>();
 
@@ -217,7 +216,7 @@ public class SaveData {
         fileHandle.writeString(json.prettyPrint(arcadeScores), false);
     }
 
-    public void writeJsonToFile(FileHandle fileHandle, String playerName, int playerScore, String playerTime)
+    public void writeJsonToFile(FileHandle fileHandle, String playerName, long playerScore, String playerTime)
             throws IOException{
 
         ArrayList<HighScores> leaderBoard;

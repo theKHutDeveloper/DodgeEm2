@@ -15,15 +15,26 @@ public class Platform {
     private float scaledHeight;
     private float scaledSize;
     private Sprite sprite;
-    private boolean isMoving, isMovingHorizontally, isShrinking, isStretching;
+    //private boolean isMovingVertically, isMovingHorizontally, isShrinking, isStretching;
     private float verticalPosition;
     private float horizontalPosition;
     private float directionVertical, distance_y, distance_x;
     private float directionHorizontal, original_y, original_x, originalSize;
     private boolean pause;
-    private boolean dropPlatform;
+   // private boolean dropPlatform;
     private float GAME_SCALE_X;
-
+    private float validHeight;
+    private boolean movingLeft, movingRight, movingUp, shrinking, movingUpAndShrink;
+    private boolean movingLeftFinished = false;
+    private boolean movingRightFinished =false;
+    private boolean movingUpFinished = false;
+    private boolean movingUpAndShrinkingFinished = false;
+    private boolean movement = false;
+    private boolean shrinkingFinished = false;
+    private boolean movingUpAndRight;
+    private boolean movingUpAndRightFinished = false;
+    private boolean movingUpAndLeftFinished = false;
+    private boolean movingUpAndLeft;
 
     public Platform(Texture texture, Vector2 position, Vector2 velocity){
         GAME_SCALE_X = (float) (Gdx.graphics.getWidth()) / (float) (WIDTH);
@@ -32,16 +43,21 @@ public class Platform {
         this.sprite = new Sprite(texture);
         scaledHeight = texture.getWidth() / texture.getHeight();
         this.scaledSize = originalSize = texture.getWidth() * GAME_SCALE_X;
-        isMoving = isMovingHorizontally = isShrinking = isStretching = false;
         verticalPosition = horizontalPosition = 0;
         pause = false;
-        dropPlatform = false;
+        validHeight = this.position.y;
+        movingLeft = movingRight = movingUp = shrinking = movingUpAndShrink = movingUpAndRight = movingUpAndLeft = false;
     }
 
 
     public void setPause(boolean pause){
         this.pause = pause;
     }
+
+    public boolean getPause(){
+        return pause;
+    }
+
 
     public float getHeight(){
         return scaledHeight;
@@ -51,84 +67,302 @@ public class Platform {
         return scaledSize;
     }
 
-    public boolean update(float lowHeight, float highHeight) {//422, 120
-        if(!pause) {
+
+    public void setMovement(){
+        this.movement = true;
+    }
+
+    public boolean update(float highHeight){
+        if(movement) {
             position.add(velocity);
 
-            if (isMoving) {
-                position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
-                if (Math.abs(position.y - original_y) >= distance_y) {
-                    position.y = verticalPosition;
-                    isMoving = false;
-                }
-            } else if (position.y <= highHeight) {
-                dropPlatform = true;
-                movePlatform(lowHeight);
-            } else {
-                dropPlatform = false;
-            }
+            //***********************
+            //MOVING HORIZONTALLY LEFT
+            //***********************
+            if (movingLeft) {
 
-            if(isShrinking && scaledSize <= (100 * GAME_SCALE_X)){
-                isShrinking = false;
-                isStretching = true;
-            }
+                if (!movingLeftFinished) {
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                    }
 
-            if(isStretching){
-                if(scaledSize >= originalSize){
-                    isStretching = false;
-                    scaledSize = originalSize;
-                    //backToNormalSize = true;
+                    if(position.x <= (-220 * GAME_SCALE_X)){
+                        movingLeftFinished = true;
+                        movement = false;
+                    }
+
                 } else {
-                    stretchPlatform(20 * GAME_SCALE_X);
-                    if(position.y < lowHeight){
-                        dropPlatform = true;
-                        movePlatform(lowHeight);
+                    movePlatformHorizontal(0);
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                        movingLeft = false;
                     }
                 }
             }
 
-            if(isMovingHorizontally){
-                position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+            else if(movingUpAndLeft){
+                if(!movingUpAndLeftFinished){
+                    position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if (Math.abs(position.y - original_y) >= distance_y) {
+                        position.y = verticalPosition;
+                    }
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                    }
+                    if(position.x <= (-220 * GAME_SCALE_X) || position.y <= highHeight){
+                        movingUpAndLeftFinished = true;
+                        movement = false;
+                    }
+                } else {
+                    if(position.y == validHeight && position.x == 0){
+                        movingUpAndLeft = false;
+                    }
 
-                if(Math.abs(position.x - original_x) >= distance_x){
-                    position.x = horizontalPosition;
-                    isMovingHorizontally = false;
-                }
+                    if(position.x < 0) {
+                        movePlatformHorizontal(0);
+                        position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                        if (Math.abs(position.x - original_x) >= distance_x) {
+                            position.x = horizontalPosition;
+                        }
+                    }
 
-            } else if(position.x <= (-220 * GAME_SCALE_X) || position.x >= (220 * GAME_SCALE_X)){
-                movePlatformHorizontal(0);
-                if(position.y < lowHeight){
-                    dropPlatform = true;
-                    movePlatform(lowHeight);
+                    if(position.y < validHeight) {
+                        movePlatformDown(validHeight);
+                        if (position.y < validHeight) {
+                            position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                            if (Math.abs(position.y - original_y) >= distance_y) {
+                                position.y = verticalPosition;
+                            }
+                        }
+                    }
                 }
             }
+            //***********************
+            //MOVING UP AND RIGHT
+            //***********************
+            else if(movingUpAndRight){
+                if(!movingUpAndRightFinished){
+                    position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if (Math.abs(position.y - original_y) >= distance_y) {
+                        position.y = verticalPosition;
+                    }
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                    }
+                    if(position.x >= (220 * GAME_SCALE_X) || position.y <= highHeight){
+                        movingUpAndRightFinished = true;
+                        movement = false;
+                    }
+                } else{
+                    if(position.y == validHeight && position.x == 0){
+                        movingUpAndRight = false;
+                    }
+
+                    if(position.x > 0) {
+                        movePlatformHorizontal(0);
+                        position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                        if (Math.abs(position.x - original_x) >= distance_x) {
+                            position.x = horizontalPosition;
+                        }
+                    }
+
+                    if(position.y < validHeight) {
+                        movePlatformDown(validHeight);
+                        if (position.y < validHeight) {
+                            position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                            if (Math.abs(position.y - original_y) >= distance_y) {
+                                position.y = verticalPosition;
+                            }
+                        }
+                    }
+                }
+            }
+            //***********************
+            //MOVE UP AND SHRINKING PLATFORM
+            //***********************
+            else if(movingUpAndShrink){
+                if(!movingUpAndShrinkingFinished){
+                    position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if (Math.abs(position.y - original_y) >= distance_y) {
+                        position.y = verticalPosition;
+                    }
+                    if(scaledSize <= (140 * GAME_SCALE_X) || position.y <= highHeight){
+                        movingUpAndShrinkingFinished = true;
+                        movement = false;
+                    }
+                } else {
+                    if(scaledSize >= originalSize){
+                        scaledSize = originalSize;
+                    } else {
+                        stretchPlatform(20 * GAME_SCALE_X);
+                        movePlatformDown(validHeight);
+                    }
+                    if(scaledSize == originalSize && position.y == validHeight){
+                        movingUpAndShrink = false;
+                    }
+
+                    if(position.y < validHeight) {
+                        position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                        if (Math.abs(position.y - original_y) >= distance_y) {
+                            position.y = verticalPosition;
+                        }
+                    }
+                }
+            }
+            //***********************
+            //SHRINKING PLATFORM
+            //***********************
+            else if(shrinking){
+                if(!shrinkingFinished){
+                    if(scaledSize <= (100 * GAME_SCALE_X)){
+                        shrinkingFinished = true;
+                        movement = false;
+                    }
+                }
+                else {
+                    if(scaledSize >= originalSize){
+                        scaledSize = originalSize;
+                        shrinking = false;
+                    } else {
+                        stretchPlatform(20 * GAME_SCALE_X);
+                    }
+                }
+            }
+
+            //***********************
+             //MOVING HORIZONTALLY RIGHT
+             //***********************
+            else if (movingRight) {
+
+                if (!movingRightFinished) {
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                    }
+
+                    if(position.x >= (220 * GAME_SCALE_X)){
+                        movingRightFinished = true;
+                        movement = false;
+                    }
+
+                } else {
+
+                    movePlatformHorizontal(0);
+                    position.x += directionHorizontal * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if(Math.abs(position.x - original_x) >= distance_x){
+                        position.x = horizontalPosition;
+                        movingRight = false;
+                    }
+                }
+            }
+            //***********************
+            //MOVING VERTICALLY
+            //***********************
+            else if (movingUp) {
+
+                if (!movingUpFinished) {
+                    position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if (Math.abs(position.y - original_y) >= distance_y) {
+                        position.y = verticalPosition;
+                    }
+
+                    if (position.y >= highHeight) {
+                        position.y -= ((20 * GAME_SCALE_X)+ Gdx.graphics.getDeltaTime());
+
+                        if (position.y <= highHeight) {
+                            movingUpFinished = true;
+                        }
+                        movement = false;
+                    }
+                } else {
+                    if (position.y <= highHeight) {
+                        movePlatformDown(validHeight);
+                    }
+                    position.y += directionVertical * (2 * GAME_SCALE_X) + Gdx.graphics.getDeltaTime();
+                    if (Math.abs(position.y - original_y) >= distance_y) {
+                        position.y = verticalPosition;
+                        movingUp = false;
+                    }
+                }
+            }
+
         }
-        return dropPlatform;
+        return false;
     }
 
 
-    public boolean isPlatformMovingDown(){
-        return dropPlatform;
+    public void resetPlatform(){
+        this.movingRightFinished = false;
+        this.movingLeftFinished = false;
+        this.movingUpFinished = false;
+        this.shrinkingFinished = false;
+        this.movingUpAndShrinkingFinished = false;
+        this.movingUpAndRightFinished = false;
+        this.movingUpAndLeftFinished = false;
+    }
+
+    public void setMovingUpAndRight(){
+        this.movingUpAndRight = true;
+    }
+
+    public void setMovingUpAndLeft(){
+        this.movingUpAndLeft = true;
+    }
+    public void setMovingUp(){
+        this.movingUp = true;
+    }
+
+    public void setMovingLeft(){
+        this.movingLeft = true;
+    }
+
+    public void setMovingRight(){
+        this.movingRight = true;
+    }
+
+    public void setShrinking(){
+        this.shrinking = true;
+    }
+
+    public void setMoveUpAndShrink(){
+        this.movingUpAndShrink = true;
+    }
+
+    public boolean hasPlatformFinishedMovingAndShrinking(){
+        return !movingUpAndShrink && movingUpAndShrinkingFinished;
     }
 
     public boolean hasPlatformFinishedMovingVertically(){
-        return !dropPlatform && !isMoving;
+        return !movingUp && movingUpFinished;
     }
 
-    public boolean hasPlatformFinishedMovingHorizontally(){
-        return position.x == 0 && !isMovingHorizontally;
+    public boolean hasPlatformFinishedMovingHorizontallyRight(){
+        return !movingRight && movingRightFinished;
     }
 
-    //shrinking platform
+    public boolean hasPlatformFinishedMovingHorizontallyLeft(){
+        return !movingLeft && movingLeftFinished;
+    }
+
     public boolean hasPlatformFinishedShrinking(){
-        return !isShrinking && !isStretching;
+        return !shrinking && shrinkingFinished;
     }
 
+    public boolean hasPlatformFinishedMovingUpAndRight(){
+        return !movingUpAndRight && movingUpAndRightFinished;
+    }
+
+    public boolean hasPlatformFinishedMovingUpAndLeft(){
+        return !movingUpAndLeft && movingUpAndLeftFinished;
+    }
     public void render(SpriteBatch spriteBatch) {
 
         //this is necessary when using Orthographic Camera
         if(!sprite.isFlipY())sprite.flip(false,true);
-
         spriteBatch.draw(sprite, position.x, position.y, scaledSize, originalSize/scaledHeight);
     }
 
@@ -137,9 +371,15 @@ public class Platform {
         original_y = position.y;
 
         distance_y = Vector2.dst(position.x, position.y, position.x, vertical);
-        directionVertical = (vertical-position.y) / distance_y;
+        directionVertical = (vertical - position.y) / distance_y;
+    }
 
-        isMoving = true;
+    private void movePlatformDown(float vertical){
+        verticalPosition = vertical;
+        original_y = position.y;
+
+        distance_y = Vector2.dst(position.x, position.y, position.x, vertical);
+        directionVertical = (vertical - position.y) / distance_y;
     }
 
     public void movePlatformHorizontal(float horizontal){
@@ -148,12 +388,24 @@ public class Platform {
 
         distance_x = Vector2.dst(position.x, position.y, horizontalPosition, position.y);
         directionHorizontal = (horizontalPosition - position.x) / distance_x;
+    }
 
-        isMovingHorizontally = true;
+    public void movePlatformUpAndShrink(float vertical, float shrinkSize){
+        shrinkPlatform(shrinkSize);
+        movePlatform(vertical);
+    }
+
+    public void movePlatformUpAndRight(float vertical, float horizontal){
+        movePlatformHorizontal(horizontal);
+        movePlatform(vertical);
+    }
+
+    public void movePlatformUpAndLeft(float vertical, float horizontal){
+        movePlatformHorizontal(horizontal);
+        movePlatform(vertical);
     }
 
     public void shrinkPlatform(float size){
-        isShrinking = true;
         scaledSize = scaledSize - size;
         position.x = position.x + (size/2);
     }

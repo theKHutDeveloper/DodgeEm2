@@ -18,6 +18,8 @@ import com.knowledgehut.developments.dodgeem2.Entity.*;
 import com.knowledgehut.developments.dodgeem2.Level;
 import com.knowledgehut.developments.dodgeem2.ScrollingBackground;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.knowledgehut.developments.dodgeem2.DodgeEm2.*;
@@ -48,7 +50,7 @@ class GameScreen extends Screen implements InputProcessor {
     private String scoreText, fruitText, enemiesText, timeText;
     private String cherryText, berryText, orangeText, galaxianText;
     private String bulletText, shieldText, levelText;
-    private BitmapFont bmpFont, impactRed, impactSilver;
+    private BitmapFont bmpFont, impactRed, impactSilver, smallTxt;
 
     private boolean playerCanFireBullets;
     private boolean playerInvincible;
@@ -64,7 +66,7 @@ class GameScreen extends Screen implements InputProcessor {
     private int MAX_SPEED = 2;
     private int ADD_NEW_ENEMY_RATE = 0;
     private int offsetX;
-    private int platformMethod;
+    private int platformMethod, platformInitialise;
     private Level levelManager;
 
     private int playerPointer;
@@ -73,7 +75,7 @@ class GameScreen extends Screen implements InputProcessor {
     private Music backgroundMusic, gameOver, slideUp, slideDown;
     private Sound explode, bulletSound, playerEats;
     private boolean musicOn, soundOn;
-    private boolean startPlatformMechanics;
+    private boolean startPlatformMechanics, platformMovementUnlocked, platformMovementStarted;
     private int platformRandom;
     private boolean pause;
 
@@ -109,7 +111,7 @@ class GameScreen extends Screen implements InputProcessor {
         playerInvincible = true;
         scoreText = "Score:  ";
         fruitText = "Fruits: ";
-        enemiesText = "Enemies:  ";
+        enemiesText = ":  ";
         timeText = "Time:  ";
         cherryText = ":";
         berryText = ":";
@@ -120,6 +122,8 @@ class GameScreen extends Screen implements InputProcessor {
 
         bmpFont = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_small.fnt"), true);
         bmpFont.getData().setScale(GAME_SCALE_X);
+        smallTxt = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_xtra_small.fnt"), true);
+        smallTxt.getData().setScale(GAME_SCALE_X);
         impactRed = new BitmapFont(Gdx.files.internal("Fonts/impact_red_large.fnt"), true);
         impactRed.getData().setScale(GAME_SCALE_X);
         impactSilver = new BitmapFont(Gdx.files.internal("Fonts/impact_silver_large.fnt"), true);
@@ -134,7 +138,7 @@ class GameScreen extends Screen implements InputProcessor {
         int playerFrames = 2;
 
         player = new Player(new Texture(Gdx.files.internal("Images/pacman.png")),
-                new Vector2((DodgeEm2.WIDTH/2) * GAME_SCALE_X, (DodgeEm2.HEIGHT - 101) * GAME_SCALE_X),
+                new Vector2(((DodgeEm2.WIDTH/2) - 24) * GAME_SCALE_X, (DodgeEm2.HEIGHT - 101) * GAME_SCALE_X),
                 new Vector2(0,0), playerFrames, DodgeEm2.WIDTH * GAME_SCALE_X);
 
         enemyTextures[0] = new Texture(Gdx.files.internal("Images/cyborg_blink.png"));
@@ -177,7 +181,11 @@ class GameScreen extends Screen implements InputProcessor {
         icons.add(new Item(fruitTextures[2], new Vector2(110 * GAME_SCALE_X, 460 * GAME_SCALE_Y),
                 new Vector2(0,0), 15,fruitType[2]));
         icons.add(new Item(new Texture(Gdx.files.internal("Images/galaxian.png")),
-                new Vector2(160 * GAME_SCALE_X, 460 * GAME_SCALE_Y), new Vector2(0,0), 15, ItemType.GALAXIAN));
+                new Vector2(210 * GAME_SCALE_X, 460 * GAME_SCALE_Y), new Vector2(0,0),
+                15, ItemType.GALAXIAN));
+        icons.add(new Item(new Texture(Gdx.files.internal("Images/enemy.png")),
+                new Vector2(160 * GAME_SCALE_X,457 * GAME_SCALE_Y),
+                new Vector2(0,0), 20, ItemType.ENEMY));
 
         platform = new Platform(new Texture(Gdx.files.internal("Images/metal_platform.png")),
                 new Vector2(0, 422 * GAME_SCALE_Y), new Vector2(0,0));
@@ -189,9 +197,11 @@ class GameScreen extends Screen implements InputProcessor {
 
         platformMoveTime = 0;
         startPlatformMechanics = false;
+        platformMovementStarted = false;
+        platformMovementUnlocked = false;
         pause = false;
         platformMethod = 0;
-
+        platformInitialise = 0;
 
         Texture texture = new Texture(Gdx.files.internal("Images/complete_text.png"));
         text_complete = new Sprite(texture);
@@ -201,7 +211,16 @@ class GameScreen extends Screen implements InputProcessor {
          if(GAME_MODE){
             levelManager = new Level(playLevel);
             levelText = "Level: "+ playLevel;
+             HashMap<String, Integer> myHash;// = new HashMap<String, Integer>();
+             myHash = levelManager.getLevelData();
+             for (Object o : myHash.entrySet()) {
+                 Map.Entry mentry = (Map.Entry) o;
+                 System.out.print("key is: " + mentry.getKey() + " & Value is: ");
+                 System.out.println(mentry.getValue());
+             }
         }
+
+
     }
 
     @Override
@@ -236,93 +255,72 @@ class GameScreen extends Screen implements InputProcessor {
             counterToNewFruit++;
             counterToNewPellet++;
 
-            //platform movement only occurs on classic mode or on arcade level 30+
-            if (!GAME_MODE || (GAME_MODE && playLevel >= 30)) {
-                if (TimeUtils.timeSinceMillis(gameTime) > 30000) {
-                    if (platformMoveTime == 0) {
-                        platformMoveTime = TimeUtils.millis();
-                        startPlatformMechanics = true;
-                    }
-
-                    //create a random generator to choose which platform method to evoke
-                    if (startPlatformMechanics) {
-                        if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
-                            platformMethod = random.nextInt(7) + 1;
-                            startPlatformMechanics = false;
-                        } else {
-                            platformMethod = random.nextInt(4) + 1;
-                            startPlatformMechanics = false;
-                        }
-                        platformRandom = random.nextInt(7000);
-                    }
-
-                    if (TimeUtils.timeSinceMillis(platformMoveTime) > (5000 + platformRandom) && !startPlatformMechanics) {//30000
-                        switch (platformMethod) {
-                            case 1:
-                                platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
-                                break;
-                            case 2:
-                                platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
-                                break;
-                            case 3:
-                                if (soundOn) slideUp.play();
-                                platform.movePlatform(platform.getPosition().y - (20 * GAME_SCALE_Y));
-                                break;
-                            case 4:
-                                platform.shrinkPlatform(40 * GAME_SCALE_X);
-                                break;
-                            case 5:
-                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                                platform.shrinkPlatform(40 * GAME_SCALE_X);
-                                break;
-                            case 6:
-                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                                platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
-                                break;
-                            case 7:
-                                platform.movePlatform(platform.getPosition().y - (30 * GAME_SCALE_Y));
-                                platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
-                                break;
-                        }
-
-                        platformMoveTime = TimeUtils.millis();
-
-                        switch (platformMethod) {
-                            case 1:
-                                if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                            case 2:
-                                if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                            case 3:
-                                if (platform.hasPlatformFinishedMovingVertically()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                            case 4:
-                                if (platform.hasPlatformFinishedShrinking()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                            case 5:
-                                if (platform.hasPlatformFinishedShrinking()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                            case 6:
-                            case 7:
-                                if (platform.hasPlatformFinishedMovingHorizontally()) {
-                                    startPlatformMechanics = true;
-                                }
-                                break;
-                        }
-                    }
+            if (!GAME_MODE || (GAME_MODE && playLevel >= 50)) {
+                if (TimeUtils.timeSinceMillis(gameTime) > 30000 && !platformMovementUnlocked){
+                    platformMovementUnlocked = true;
+                    platformMoveTime = TimeUtils.millis();
+                    platformInitialise = 1;
                 }
 
+                if(platformMovementUnlocked){
+                    if(platformInitialise == 1){
+                        startPlatformMechanics = true;
+                        platformInitialise = 2;
+                    }
+                }
+                if(startPlatformMechanics){
+
+                    if (TimeUtils.timeSinceMillis(gameTime) > 60000) {
+                        platformMethod = random.nextInt(7) + 1;
+                    } else {
+                        platformMethod = random.nextInt(4) + 1;
+                    }
+                    platform.resetPlatform();
+                    platformRandom = random.nextInt(2000);
+                    platformMovementStarted = false;
+                    startPlatformMechanics = false;
+                }
+
+                if (TimeUtils.timeSinceMillis(platformMoveTime) > (5000 + platformRandom) && !startPlatformMechanics) {//5000
+                    platformMovementStarted = true;
+                    platform.setMovement();
+                    switch (platformMethod) {
+                        case 1:
+                            platform.setMovingRight();
+                            platform.movePlatformHorizontal(platform.getPosition().x + (20 * GAME_SCALE_X));
+                            break;
+                        case 2:
+                            platform.setMovingLeft();
+                            platform.movePlatformHorizontal(platform.getPosition().x - (20 * GAME_SCALE_X));
+                            break;
+                        case 3:
+                            platform.setMovingUp();
+                            platform.movePlatform(platform.getPosition().y - (20 * GAME_SCALE_Y));
+                            if (soundOn) slideUp.play();
+
+                            break;
+                        case 4:
+                            platform.setShrinking();
+                            platform.shrinkPlatform(40 * GAME_SCALE_X);
+                            break;
+                        case 5:
+                            platform.setMoveUpAndShrink();
+                            platform.movePlatformUpAndShrink(platform.getPosition().y - (40 * GAME_SCALE_Y),
+                                    25 * GAME_SCALE_X);
+                            break;
+                        case 6:
+                            platform.setMovingUpAndRight();
+                            platform.movePlatformUpAndRight(platform.getPosition().y - (32 * GAME_SCALE_Y),
+                                    platform.getPosition().x + (20 * GAME_SCALE_X));
+                            break;
+                        case 7:
+                            platform.setMovingUpAndLeft();
+                            platform.movePlatformUpAndLeft(platform.getPosition().y - (32 * GAME_SCALE_Y),
+                                    platform.getPosition().x - (20 * GAME_SCALE_X));
+                            break;
+                    }
+                    platformMoveTime = TimeUtils.millis();
+                }
             }
 
             if (TimeUtils.timeSinceMillis(scoreTime) > 10000) {
@@ -335,18 +333,21 @@ class GameScreen extends Screen implements InputProcessor {
             if (MAX_SPEED <= 5) {
                 ADD_NEW_ENEMY_RATE = 100;
             } else if (MAX_SPEED > 5 && MAX_SPEED <= 10) {
-                ADD_NEW_ENEMY_RATE = 50;
+                ADD_NEW_ENEMY_RATE = 75;
             } else if (MAX_SPEED > 11 && MAX_SPEED <= 14) {
-                ADD_NEW_ENEMY_RATE = 36;
+                ADD_NEW_ENEMY_RATE = 50;
             } else if (MAX_SPEED > 15 && MAX_SPEED <= 20) {
-                ADD_NEW_ENEMY_RATE = 25;
-            } else if (MAX_SPEED > 20 && MAX_SPEED <= 25) {
-                ADD_NEW_ENEMY_RATE = 5;
+                ADD_NEW_ENEMY_RATE = 30;
+            } else if (MAX_SPEED > 20 && MAX_SPEED <= 22) {
+                ADD_NEW_ENEMY_RATE = 20;
             }
             int MIN_SPEED = 1;
 
-            if (TimeUtils.timeSinceMillis(startTime) > 30000) {
+            if (TimeUtils.timeSinceMillis(startTime) > 60000) {
                 MAX_SPEED += 2;
+                if(MAX_SPEED > 22){
+                    MAX_SPEED = 22;
+                }
                 startTime += 30000;
                 counterToAddNewEnemy = 0;
             }
@@ -363,8 +364,14 @@ class GameScreen extends Screen implements InputProcessor {
                 createNewPellet(MIN_SPEED);
             }
 
-            if (TimeUtils.timeSinceMillis(galaxianTime) > 60000) {//60000
-                createNewGalaxian(MIN_SPEED);
+            if(GAME_MODE && playLevel >= 50){
+                if(TimeUtils.timeSinceMillis(galaxianTime) > 30000){
+                    createNewGalaxian(MIN_SPEED);
+                }
+            } else {
+                if (TimeUtils.timeSinceMillis(galaxianTime) > 60000) {
+                    createNewGalaxian(MIN_SPEED);
+                }
             }
 
             playerGone();
@@ -380,7 +387,49 @@ class GameScreen extends Screen implements InputProcessor {
                 bullet.update();
             }
 
-            boolean moveDown = platform.update(422 * GAME_SCALE_Y, 180 * GAME_SCALE_Y);
+            boolean moveDown = platform.update(180 * GAME_SCALE_Y);
+
+            if (!GAME_MODE || (GAME_MODE && playLevel >= 50)) {
+                if (platformMovementUnlocked && platformMovementStarted) {
+                    switch (platformMethod){
+                        case 1:
+                            if (platform.hasPlatformFinishedMovingHorizontallyRight()) {
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 2:
+                            if (platform.hasPlatformFinishedMovingHorizontallyLeft()) {
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 3:
+                            if (platform.hasPlatformFinishedMovingVertically()) {
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 4:
+                            if (platform.hasPlatformFinishedShrinking()) {
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 5:
+                            if (platform.hasPlatformFinishedMovingAndShrinking()) {
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 6:
+                            if(platform.hasPlatformFinishedMovingUpAndRight()){
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                        case 7:
+                            if(platform.hasPlatformFinishedMovingUpAndLeft()){
+                                startPlatformMechanics = true;
+                            }
+                        break;
+                    }
+                }
+            }
 
             if (moveDown)
                 if (soundOn) slideDown.play();
@@ -416,13 +465,11 @@ class GameScreen extends Screen implements InputProcessor {
         Gdx.gl.glClearColor( 0, 0, 0, 0 );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
         spriteBatch.begin();
         background.updateAndRender(0.05f, spriteBatch);
         foreground.updateAndRender(0.1f, spriteBatch);
 
-        bmpFont.draw(spriteBatch, scoreText + Integer.toString(SCORE), 10 * GAME_SCALE_X, 10 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED), 230 * GAME_SCALE_X, 10 * GAME_SCALE_X);
+        bmpFont.draw(spriteBatch, scoreText + Long.toString(SCORE), 10 * GAME_SCALE_X, 10 * GAME_SCALE_X);
         bmpFont.draw(spriteBatch, timeText, 150 * GAME_SCALE_X, 10 * GAME_SCALE_X);
 
         player.render(spriteBatch);
@@ -459,24 +506,256 @@ class GameScreen extends Screen implements InputProcessor {
 
         impactRed.draw(spriteBatch, bulletText, 160 * GAME_SCALE_X, 250 * GAME_SCALE_X);
         impactSilver.draw(spriteBatch, shieldText, 160 * GAME_SCALE_X, 200 * GAME_SCALE_X);
-        bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
 
-        for (Item icon : icons) {
-            icon.render(spriteBatch);
-        }
-        bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 30 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
-        bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
-        bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
-        bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 180 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
 
-        if(GAME_MODE){
+        if(!GAME_MODE) {
+            bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
+
+            for (Item icon : icons) {
+                icon.render(spriteBatch);
+            }
+            bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), 30 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+            bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE), 80 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+            bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), 130 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+            bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), 230 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+            bmpFont.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED), 180 * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+        } else {
+            displayIcons(spriteBatch);
             bmpFont.draw(spriteBatch, levelText, 250 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
         }
+
         platform.render(spriteBatch);
         paddle.render(spriteBatch);
         spriteBatch.end();
     }
 
+    private void displayIcons(SpriteBatch spriteBatch){
+
+        float posX1 = 10;
+        float posX2 = 60;
+        float posX3 = 110;
+        float posX4 = 160;
+        float posX5 = 210;
+
+        boolean one = false;
+        boolean two = false;
+        boolean three = false;
+        boolean four = false;
+        boolean five = false;
+
+        HashMap<String, Integer> myHash;
+        myHash = levelManager.getLevelData();
+
+        if(myHash.containsKey("score")){
+            bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE), 10 * GAME_SCALE_X,
+                    440 * GAME_SCALE_Y);
+
+            icons.get(0).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(0).getPosition().y));
+            icons.get(0).render(spriteBatch);
+            bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), (posX1 + 20) * GAME_SCALE_X,
+                    460 * GAME_SCALE_Y);
+
+            icons.get(1).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(1).getPosition().y));
+            icons.get(1).render(spriteBatch);
+            bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE),
+                    (posX2 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            icons.get(2).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(2).getPosition().y));
+            icons.get(2).render(spriteBatch);
+            bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE), (posX3 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            icons.get(3).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(3).getPosition().y));
+            icons.get(3).render(spriteBatch);
+            bmpFont.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE), (posX5 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            icons.get(4).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(4).getPosition().y));
+            icons.get(4).render(spriteBatch);
+            bmpFont.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED), (posX4 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            one = two = three = four = five = true;
+
+        } else if(myHash.containsKey("fruit")){
+            bmpFont.draw(spriteBatch, fruitText + Integer.toString(FRUIT_SCORE) + " /" + myHash.get("fruit"),
+                    10 * GAME_SCALE_X, 440 * GAME_SCALE_Y);
+
+            icons.get(0).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(0).getPosition().y));
+            icons.get(0).render(spriteBatch);
+            bmpFont.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE), (posX1 + 20) * GAME_SCALE_X,
+                    460 * GAME_SCALE_Y);
+
+            icons.get(1).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(1).getPosition().y));
+            icons.get(1).render(spriteBatch);
+            bmpFont.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE),
+                    (posX2 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            icons.get(2).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(2).getPosition().y));
+            icons.get(2).render(spriteBatch);
+            bmpFont.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE),
+                    (posX3 + 20) * GAME_SCALE_X, 460 * GAME_SCALE_Y);
+
+            one = two = three = true;
+        }
+
+        if(myHash.containsKey("orange")){
+            if(!one){
+                icons.get(2).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(2).getPosition().y));
+                smallTxt.draw(spriteBatch, Integer.toString(ORANGE_SCORE) + " /" + myHash.get("orange"),
+                        (posX1 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                one = true;
+            } else if(!two){
+                icons.get(2).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(2).getPosition().y));
+                smallTxt.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE) + " /" + myHash.get("orange"),
+                        (posX2 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                two = true;
+            } else if(!three){
+                icons.get(2).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(2).getPosition().y));
+                smallTxt.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE) + " /" + myHash.get("orange"),
+                        (posX3 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                three = true;
+            } else if(!four){
+                icons.get(2).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(2).getPosition().y));
+                smallTxt.draw(spriteBatch, orangeText +Integer.toString(ORANGE_SCORE) + " /" + myHash.get("orange"),
+                        (posX4 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                four = true;
+            } else if(!five){
+                icons.get(2).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(2).getPosition().y));
+                smallTxt.draw(spriteBatch, orangeText + Integer.toString(ORANGE_SCORE) + " /" + myHash.get("orange"),
+                        (posX5 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                five = true;
+            }
+            icons.get(2).render(spriteBatch);
+        }
+
+        if(myHash.containsKey("strawberry")){
+
+            if(!one){
+                icons.get(1).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(1).getPosition().y));
+                smallTxt.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE) + " /" + myHash.get("strawberry"),
+                        (posX1 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                one = true;
+            } else if(!two){
+                icons.get(1).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(1).getPosition().y));
+                smallTxt.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE) + " /" + myHash.get("strawberry"),
+                        (posX2 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                two = true;
+            } else if(!three){
+                icons.get(1).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(1).getPosition().y));
+                smallTxt.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE) + " /" + myHash.get("strawberry"),
+                        (posX3 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                three = true;
+            } else if(!four){
+                icons.get(1).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(1).getPosition().y));
+                smallTxt.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE) + " /" + myHash.get("strawberry"),
+                        (posX4 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                four = true;
+            } else if(!five){
+                icons.get(1).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(1).getPosition().y));
+                smallTxt.draw(spriteBatch, berryText + Integer.toString(STRAWBERRY_SCORE) + " /" + myHash.get("strawberry"),
+                        (posX5 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                five = true;
+            }
+            icons.get(1).render(spriteBatch);
+        }
+
+        if(myHash.containsKey("cherry")){
+            if(!one){
+                icons.get(0).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(0).getPosition().y));
+                smallTxt.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE) + " /" + myHash.get("cherry"),
+                        (posX1 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                one = true;
+            } else if(!two){
+                icons.get(0).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(0).getPosition().y));
+                smallTxt.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE) + " /" + myHash.get("cherry"),
+                        (posX2 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                two = true;
+            }
+            else if(!three){
+                icons.get(0).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(0).getPosition().y));
+                smallTxt.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE) + " /" + myHash.get("cherry"),
+                        (posX3 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                three = true;
+            }
+            else if(!four){
+                icons.get(0).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(0).getPosition().y));
+                smallTxt.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE) + " /" + myHash.get("cherry"),
+                        (posX4 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                four = true;
+            }
+            else if(!five){
+                icons.get(0).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(0).getPosition().y));
+                smallTxt.draw(spriteBatch, cherryText + Integer.toString(CHERRY_SCORE) + " /" + myHash.get("cherry"),
+                        (posX5 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                five = true;
+            }
+            icons.get(0).render(spriteBatch);
+        }
+
+        if(myHash.containsKey("enemy")){
+            if(!one){
+                icons.get(4).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(4).getPosition().y));
+                smallTxt.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED) + " /" + myHash.get("enemy"),
+                        (posX1 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                one = true;
+            } else if(!two){
+                icons.get(4).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(4).getPosition().y));
+                smallTxt.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED) + " /" + myHash.get("enemy"),
+                        (posX2 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                two = true;
+            }
+            else if(!three){
+                icons.get(4).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(4).getPosition().y));
+                smallTxt.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED) + " /" + myHash.get("enemy"),
+                        (posX3 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                three = true;
+            }
+            else if(!four){
+                icons.get(4).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(4).getPosition().y));
+                smallTxt.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED) + " /" + myHash.get("enemy"),
+                        (posX4 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                four = true;
+            }
+            else if(!five){
+                icons.get(4).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(4).getPosition().y));
+                smallTxt.draw(spriteBatch, enemiesText + Integer.toString(ENEMIES_KILLED) + " /" + myHash.get("enemy"),
+                        (posX5 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                five = true;
+            }
+            icons.get(4).render(spriteBatch);
+        }
+
+        if(myHash.containsKey("galaxian")) {
+            if(!one){
+                icons.get(3).setPosition(new Vector2(posX1 * GAME_SCALE_X, icons.get(3).getPosition().y));
+                smallTxt.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE) + " /" + myHash.get("galaxian"),
+                        (posX1 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                //one = true;
+            } else if(!two){
+                icons.get(3).setPosition(new Vector2(posX2 * GAME_SCALE_X, icons.get(3).getPosition().y));
+                smallTxt.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE)  + " /" + myHash.get("galaxian"),
+                        (posX2 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                //two = true;
+            }
+            else if(!three){
+                icons.get(3).setPosition(new Vector2(posX3 * GAME_SCALE_X, icons.get(3).getPosition().y));
+                smallTxt.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE)  + " /" + myHash.get("galaxian"),
+                        (posX3 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                //three = true;
+            }
+            else if(!four){
+                icons.get(3).setPosition(new Vector2(posX4 * GAME_SCALE_X, icons.get(3).getPosition().y));
+                smallTxt.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE)  + " /" + myHash.get("galaxian"),
+                        (posX4 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+                //four = true;
+            }
+            else if(!five){
+                icons.get(3).setPosition(new Vector2(posX5 * GAME_SCALE_X, icons.get(3).getPosition().y));
+                smallTxt.draw(spriteBatch, galaxianText + Integer.toString(GALAXIAN_SCORE)  + " /" + myHash.get("galaxian"),
+                        (posX5 + 20) * GAME_SCALE_X, 465 * GAME_SCALE_Y);
+               // five = true;
+            }
+            icons.get(3).render(spriteBatch);
+        }
+    }
     @SuppressWarnings("unused")
     private void clearScores(){
         SCORE = FRUIT_SCORE = ENEMIES_KILLED =0;
@@ -597,12 +876,15 @@ class GameScreen extends Screen implements InputProcessor {
     private boolean playerMustFall(){
         boolean fall = false;
 
-        if((platform.getPosition().x + platform.getWidth()) <= paddle.getPosition().x &&
-                (paddle.getPosition().x > 0 && paddle.getPosition().x < WIDTH * GAME_SCALE_X )){
+        //right side fall
+        if((platform.getPosition().x + platform.getWidth()) < WIDTH * GAME_SCALE_X &&
+                paddle.getPosition().x + (paddle.getWidth()/2) > (platform.getPosition().x + platform.getWidth())){
             fall = true;
             paddle.fall(10 * GAME_SCALE_Y);
-        } else if(platform.getPosition().x > (paddle.getPosition().x + paddle.getWidth()) &&
-                (paddle.getPosition().x > 0 && paddle.getPosition().x < WIDTH * GAME_SCALE_X )){
+        }
+        //left side fall
+        else if(platform.getPosition().x > (paddle.getPosition().x + (paddle.getWidth()/2)) &&
+                (paddle.getPosition().x > 0 && paddle.getPosition().x < WIDTH * GAME_SCALE_X )) {
             fall = true;
             paddle.fall(10 * GAME_SCALE_Y);
         }
@@ -777,7 +1059,7 @@ class GameScreen extends Screen implements InputProcessor {
                             if (soundOn) explode.play();
                             enemies.get(i).setEffect();
                             ENEMIES_KILLED += 1;
-                            SCORE += 2000;
+                            SCORE += 1000;
                             bullets.remove(b);
                         }
                     }

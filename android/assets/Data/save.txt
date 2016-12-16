@@ -1,8 +1,20 @@
 [
 {
 	"class": "Classic Highscores",
-	"name": "Andrien R",
-	"score": 320,
-	"time": "0 : 19"
+	"name": "Andrien",
+	"score": 133540,
+	"time": "10 : 23"
+},
+{
+	"class": "Classic Highscores",
+	"name": "Andrien",
+	"score": 120020,
+	"time": "5 : 19"
+},
+{
+	"class": "Classic Highscores",
+	"name": "Angie",
+	"score": 13200,
+	"time": "1 : 43"
 }
 ]
