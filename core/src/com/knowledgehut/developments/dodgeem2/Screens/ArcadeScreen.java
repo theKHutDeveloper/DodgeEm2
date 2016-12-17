@@ -236,7 +236,6 @@ public class ArcadeScreen extends Screen {
             topScore.setPosition(33, -200);
             topScore.addAction(Actions.moveTo(33, 179, 2f));
             stage.addActor(topScore);
-            System.out.println(SCORE);
         }
     }
 

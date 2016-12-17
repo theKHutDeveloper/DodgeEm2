@@ -1,7 +1,5 @@
 package com.knowledgehut.developments.dodgeem2;
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Level {
@@ -15,7 +13,6 @@ public class Level {
         fruits = cherry = strawberry = orange = galaxian = score = 0;
         enemy = 0;
         levelCreator();
-
     }
 
     public HashMap<String, Integer> getLevelData(){
@@ -55,10 +52,10 @@ public class Level {
             case 19: enemy = 10; break;
             case 20: orange = 6; enemy = 8; break;
             case 21: fruits = 11; break;
-            case 22: score = 13000; break;//cherry = 5; strawberry = 5; orange = 5; enemy = 15; break;
-            case 23: cherry = 6; strawberry = 8; break;//score = 13000; break;
+            case 22: score = 13000; break;
+            case 23: cherry = 6; strawberry = 8; break;
             case 24: cherry = 8; strawberry = 8; orange = 8; break;
-            case 25: score = 18000; break;// cherry = 10; strawberry = 10; orange = 10; break;
+            case 25: score = 18000; break;
             case 26: enemy = 12; cherry = 2; break;
             case 27: enemy = 14; break;
             case 28: score = 20000; break;
@@ -138,7 +135,7 @@ public class Level {
             case 16:
                 if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 17:
-                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.ENEMIES_KILLED >= 10) success = true; break;
+                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 18:
                 if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.SCORE >= score) success = true; break;
             case 19:
@@ -148,24 +145,22 @@ public class Level {
             case 21:
                 if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
             case 22:
-                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.CHERRY_SCORE >= cherry &&
-                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
-            case 23:
                 if(DodgeEm2.SCORE >= score) success = true; break;
+            case 23:
+                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
             case 24:
                 if(DodgeEm2.CHERRY_SCORE >= cherry &&
                     DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
             case 25:
-                if(DodgeEm2.SCORE >= score && DodgeEm2.CHERRY_SCORE >= cherry &&
-                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+                if(DodgeEm2.SCORE >= score) success = true; break;
             case 26:
-                if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
+                if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
             case 27:
                 if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 28:
                 if(DodgeEm2.SCORE >= score) success = true; break;
             case 29:
-                if(DodgeEm2.CHERRY_SCORE >= cherry && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
             case 30:
                 if(DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
             case 31:
@@ -188,11 +183,11 @@ public class Level {
             case 39:
                 if(DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
             case 40:
-                if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
+                if(DodgeEm2.FRUIT_SCORE >= fruits && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
             case 41:
                 if(DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 42:
-                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.ENEMIES_KILLED >= enemy &&
+                if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.ORANGE_SCORE >= orange &&
                     DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
             case 43:
                 if(DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
@@ -208,7 +203,7 @@ public class Level {
                 if(DodgeEm2.FRUIT_SCORE >= fruits) success = true; break;
             case 49:
                 if(DodgeEm2.STRAWBERRY_SCORE >= strawberry && DodgeEm2.GALAXIAN_SCORE >= galaxian
-                        && DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
+                        && DodgeEm2.CHERRY_SCORE >= cherry) success = true; break;
             case 50:
                 if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.SCORE >= score) success = true; break;
             case 51:
@@ -225,7 +220,7 @@ public class Level {
                         DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
             case 56:
                 if(DodgeEm2.CHERRY_SCORE >= cherry &&
-                    DodgeEm2.ORANGE_SCORE >= orange && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
+                    DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.STRAWBERRY_SCORE >= strawberry) success = true; break;
             case 57:
                 if(DodgeEm2.ENEMIES_KILLED >= enemy && DodgeEm2.CHERRY_SCORE >= cherry &&
                         DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
@@ -236,12 +231,9 @@ public class Level {
                 if(DodgeEm2.SCORE >= score && DodgeEm2.FRUIT_SCORE >= fruits &&
                         DodgeEm2.ENEMIES_KILLED >= enemy) success = true; break;
             case 60:
-                if(DodgeEm2.SCORE >= score && DodgeEm2.GALAXIAN_SCORE >= galaxian) success = true; break;
+                if(DodgeEm2.SCORE >= score && DodgeEm2.GALAXIAN_SCORE >= galaxian &&
+                        DodgeEm2.ORANGE_SCORE >= orange) success = true; break;
         }
         return success;
     }
-
-
-
-
 }

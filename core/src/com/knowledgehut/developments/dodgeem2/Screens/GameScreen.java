@@ -211,13 +211,6 @@ class GameScreen extends Screen implements InputProcessor {
          if(GAME_MODE){
             levelManager = new Level(playLevel);
             levelText = "Level: "+ playLevel;
-             HashMap<String, Integer> myHash;// = new HashMap<String, Integer>();
-             myHash = levelManager.getLevelData();
-             for (Object o : myHash.entrySet()) {
-                 Map.Entry mentry = (Map.Entry) o;
-                 System.out.print("key is: " + mentry.getKey() + " & Value is: ");
-                 System.out.println(mentry.getValue());
-             }
         }
 
 

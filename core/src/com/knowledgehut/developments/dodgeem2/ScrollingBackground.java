@@ -5,9 +5,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import java.io.Console;
-
-import static com.knowledgehut.developments.dodgeem2.DodgeEm2.WIDTH;
 
 public class ScrollingBackground {
 

@@ -165,7 +165,7 @@ class HighScoreScreen extends Screen{
     public void update() {
         trash.addListener(new ClickListener(){
             public void touchUp(InputEvent event, float x, float y, int pointer, int button){
-                //get Dialog
+
                 try {
                     SaveData saveData = new SaveData();
                     ArrayList<SaveData.HighScores> highScores = saveData.returnSortedJson(Gdx.files.local("Data/save.txt"));

@@ -75,7 +75,6 @@ class LevelDescription extends Screen{
                                 })));
             }
         });
-        //
 
         //==========================Back Button=============================================
         textureRegion = TextureRegion.split(

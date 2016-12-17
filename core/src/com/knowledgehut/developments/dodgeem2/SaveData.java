@@ -202,12 +202,6 @@ public class SaveData {
                     newScores.remove(i);
                 }
             }
-
-            for (ArcadeScores aLeaderBoard : newScores) {
-                System.out.print(aLeaderBoard.getLevel() + ", ");
-                System.out.print(aLeaderBoard.getName() + ", ");
-                System.out.print(aLeaderBoard.getScore());
-            }
         }
 
         arcadeScores.addAll(newScores);
@@ -230,12 +224,6 @@ public class SaveData {
             for (int i = counter; i > 9; i--) {
                 leaderBoard.remove(i);
             }
-        }
-
-        for (HighScores aLeaderBoard : leaderBoard) {
-            System.out.print(aLeaderBoard.getName() + ", ");
-            System.out.print(aLeaderBoard.getScore());
-            System.out.print(aLeaderBoard.getTime());
         }
 
         Json json = new Json(JsonWriter.OutputType.json);
